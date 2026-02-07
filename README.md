@@ -10,58 +10,7 @@
 
 ### 下载与部署
 
-###### 从源代码库编译
-
-1. 从仓库拷贝原始代码
-```sh
-git clone https://github.com/PenNineCat/PenFramework.git
-```
-2. 定向到代码目录
-```sh
-cd PenFramework
-```
-3. 通过cmake编译该项目
-```sh
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=[path/to/vcpkg]/scripts/buildsystems/vcpkg.cmake
-cmake --build build --config Release
-```
-
-cmake vcpkg集成会自动下载与安装[vcpkg.json](https://github.com/PenNineCat/PenFramework/blob/master/vcpkg.json)中涉及到的vcpkg第三方依赖项。
-
-如果您使用Visual Studio等集成IDE，可以直接使用集成IDE打开项目目录，进行编译。
-
-### 快速开始
-您可以使用以下代码来将框架整合到您的项目中
-```cmake
-find_package(PenFramework REQUIRED 
-	COMPONENTS
-		PenEngine
-		PenEngineExample 
-)
-add_executable(${PROJECT_NAME} Main.cpp)
-target_link_libraries(${PROJECT_NAME} 
-	PenFramework::PenEngine
-	PenFramework::PenEngineExample
-)
-```
-以下是一份示例代码
-```cpp
-Main.cpp
-
-#include "PenFramework/Code/CoreApplication.h"
-#include "PenFramework/Example/Example1/Code/CoreApplication.h"
-
-int main()
-{
-// 这是实际您应该使用的内容
-//	PenEngine::CoreApplication app;
-//	return app.Exec();
-
-//  示例项目
-    PenEngine::Example1::CoreApplication app;
-	return app.Exec();
-}
-```
+目前项目还不支持部署，请等待后续提交
 
 ### 平台支持
 - Windows 10/11 x64
