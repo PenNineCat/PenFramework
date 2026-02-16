@@ -1,3 +1,13 @@
+// File /Engine/Math/Color.hpp
+// This file is a part of PenFramework Project
+// https://github.com/PenNineCat/PenFramework
+// 
+// Copyright (C) 2025 - Present PenNineCat. All rights reserved
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 #pragma once
 
 #include "../Common/Type.hpp"
@@ -124,13 +134,13 @@ namespace PenFramework::PenEngine
 		/// @brief 透明色
 		constexpr static ColorF Transparent() noexcept;
 
-		constexpr u32 PackU32() const noexcept;
-		constexpr static u32 PackU32(float r, float g, float b, float a) noexcept;
+		[[nodiscard]] constexpr u32 PackU32() const noexcept;
+		[[nodiscard]] constexpr static u32 PackU32(float r, float g, float b, float a) noexcept;
 
 		/// @brief 对颜色进行线性差值，返回差值结果
 		/// @param target 终点值
 		/// @param t 差值
-		constexpr ColorF Lerp(float target, float t) const noexcept;
+		[[nodiscard]] constexpr ColorF Lerp(float target, float t) const noexcept;
 	};
 
 	/// @brief 0~255颜色结构体

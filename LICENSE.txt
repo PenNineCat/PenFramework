@@ -1,4 +1,4 @@
-Copyright 2025 PenNineCat
+Copyright (c) 2025 - Present PenNineCat
 
 Mozilla Public License Version 2.0
 ==================================

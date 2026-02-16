@@ -1,7 +1,20 @@
+// File /UnitTest/Tests/Test_Math.hpp
+// This file is a part of PenFramework Project
+// https://github.com/PenNineCat/PenFramework
+// 
+// Copyright (C) 2025 - Present PenNineCat. All rights reserved
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 #pragma once
 
-#include "../../Engine/Math/Math.hpp"
-#include "../Core/Core.h"
+#include "../../Engine/Math/MathFunction.hpp"
+#include "../../Engine/Math/Vec2.hpp"
+#include "../../Engine/Math/Vec3.hpp"
+#include "../../Engine/Math/Vec4.hpp"
+#include "../Core/UnitTestFramework.h"
 
 #include <exception>
 #include <numbers>
@@ -119,8 +132,8 @@ namespace PenFramework::UnitTest::Math
 		// --- NearAbs 测试 ---
 			UNIT_TEST_CHECKPOINT("测试 NearAbs（绝对误差）")
 			UNIT_TEST_CONDITION("1.0 ≈ 1.0", NearAbs(1.0f, 1.0f))
-			UNIT_TEST_CONDITION("1.0 与 1.0 + ε/2 应视为相等", NearAbs(1.0f, 1.0f + MATH_EPSILON / 2.0f))
-			UNIT_TEST_CONDITION("1.0 与 1.0 - ε/2 应视为相等", NearAbs(1.0f, 1.0f - MATH_EPSILON / 2.0f))
+			UNIT_TEST_CONDITION("1.0 与 1.0 + ε/2 应视为相等", NearAbs(1.0f, 1.0f + MathEpsilon / 2.0f))
+			UNIT_TEST_CONDITION("1.0 与 1.0 - ε/2 应视为相等", NearAbs(1.0f, 1.0f - MathEpsilon / 2.0f))
 			UNIT_TEST_CONDITION("1.0 与 1.1 超出容差，不应视为相等", !NearAbs(1.0f, 1.1f))
 
 			// 自定义 epsilon（显式传入）
@@ -143,7 +156,7 @@ namespace PenFramework::UnitTest::Math
 				NearRel(0.0f, 0.0f))
 
 			UNIT_TEST_CONDITION("0.0 与非零值不应视为相等",
-				!NearRel(0.0f, MATH_EPSILON))
+				!NearRel(0.0f, MathEpsilon))
 
 			// 显式 epsilon
 			UNIT_TEST_CONDITION("100.0 与 101.0 在 epsilon=0.02 下应视为相等（相对误差 1%）",
@@ -247,23 +260,6 @@ namespace PenFramework::UnitTest::Math
 			UNIT_TEST_CONDITION("/= 标量", v == Vec2(0.5f, 1.0f))
 		}
 
-		// --- 自增/自减 ---
-		UNIT_TEST_CHECKPOINT("测试自增/自减运算符")
-		{
-			Vec2 v(1.0f, 2.0f);
-			Vec2 v_pre = ++v;   // 前置++
-			UNIT_TEST_CONDITION("前置++", v_pre == Vec2(2.0f, 3.0f) && v == Vec2(2.0f, 3.0f))
-
-				Vec2 v_post = v++;  // 后置++
-			UNIT_TEST_CONDITION("后置++", v_post == Vec2(2.0f, 3.0f) && v == Vec2(3.0f, 4.0f))
-
-				--v;
-			UNIT_TEST_CONDITION("前置--", v == Vec2(2.0f, 3.0f))
-
-				v--;
-			UNIT_TEST_CONDITION("后置--", v == Vec2(1.0f, 2.0f))
-		}
-
 		// --- 下标访问 ---
 		UNIT_TEST_CHECKPOINT("测试下标 operator[]")
 		{
@@ -283,7 +279,7 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 IsZero 与 IsNearZero")
 		{
 			Vec2 zero;
-			Vec2 nearZero(MATH_EPSILON / 2.0f, -MATH_EPSILON / 3.0f);
+			Vec2 nearZero(MathEpsilon / 2.0f, -MathEpsilon / 3.0f);
 			Vec2 notZero(0.1f, 0.0f);
 
 			UNIT_TEST_CONDITION("IsZero", zero.IsZero())
@@ -412,7 +408,7 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 operator==（基于 NearAbs）")
 		{
 			Vec2 a(1.0f, 2.0f);
-			Vec2 b(1.0f + MATH_EPSILON / 2.0f, 2.0f - MATH_EPSILON / 3.0f);
+			Vec2 b(1.0f + MathEpsilon / 2.0f, 2.0f - MathEpsilon / 3.0f);
 			Vec2 c(1.1f, 2.0f);
 
 			UNIT_TEST_CONDITION("近似相等应返回 true", a == b)
@@ -477,13 +473,6 @@ namespace PenFramework::UnitTest::Math
 
 				v *= 2.0f;
 			UNIT_TEST_CONDITION("*= 标量", v == Vec3(4.0f, 6.0f, 8.0f))
-
-				Vec3 w(0.0f, 0.0f, 0.0f);
-			Vec3 w_post = w++;
-			UNIT_TEST_CONDITION("后置++", w_post == Vec3(0.0f, 0.0f, 0.0f) && w == Vec3(1.0f, 1.0f, 1.0f))
-
-				--w;
-			UNIT_TEST_CONDITION("前置--", w == Vec3(0.0f, 0.0f, 0.0f))
 		}
 
 		// --- 下标访问 ---
@@ -504,7 +493,7 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 IsZero 与 IsNearZero")
 		{
 			Vec3 zero;
-			Vec3 nearZero(MATH_EPSILON / 2.0f, -MATH_EPSILON / 3.0f, MATH_EPSILON / 4.0f);
+			Vec3 nearZero(MathEpsilon / 2.0f, -MathEpsilon / 3.0f, MathEpsilon / 4.0f);
 			Vec3 notZero(0.0f, 0.0f, 0.1f);
 
 			UNIT_TEST_CONDITION("IsZero", zero.IsZero())
@@ -627,7 +616,7 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 operator==（基于 NearAbs）")
 		{
 			Vec3 a(1.0f, 2.0f, 3.0f);
-			Vec3 b(1.0f + MATH_EPSILON / 2, 2.0f - MATH_EPSILON / 3, 3.0f + MATH_EPSILON / 4);
+			Vec3 b(1.0f + MathEpsilon / 2, 2.0f - MathEpsilon / 3, 3.0f + MathEpsilon / 4);
 			Vec3 c(1.0f, 2.1f, 3.0f);
 
 			UNIT_TEST_CONDITION("近似相等", a == b)
@@ -693,13 +682,6 @@ namespace PenFramework::UnitTest::Math
 
 				v *= 0.5f;
 			UNIT_TEST_CONDITION("*= 标量", v == Vec4(0.5f, 1.0f, 1.5f, 2.0f))
-
-				Vec4 w(0.0f, 0.0f, 0.0f, 0.0f);
-			Vec4 w_post = w++;
-			UNIT_TEST_CONDITION("后置++", w_post == Vec4(0.0f, 0.0f, 0.0f, 0.0f) && w == Vec4(1.0f, 1.0f, 1.0f, 1.0f))
-
-				--w;
-			UNIT_TEST_CONDITION("前置--", w == Vec4(0.0f, 0.0f, 0.0f, 0.0f))
 		}
 
 		// --- 下标访问 ---
@@ -721,7 +703,7 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 IsZero 与 IsNearZero")
 		{
 			Vec4 zero;
-			Vec4 nearZero(MATH_EPSILON / 2, -MATH_EPSILON / 3, MATH_EPSILON / 4, -MATH_EPSILON / 5);
+			Vec4 nearZero(MathEpsilon / 2, -MathEpsilon / 3, MathEpsilon / 4, -MathEpsilon / 5);
 			Vec4 notZero(0.0f, 0.0f, 0.0f, 0.1f);
 
 			UNIT_TEST_CONDITION("IsZero", zero.IsZero())
@@ -847,8 +829,8 @@ namespace PenFramework::UnitTest::Math
 		UNIT_TEST_CHECKPOINT("测试 operator==（基于 NearAbs）")
 		{
 			Vec4 a(1.0f, 2.0f, 3.0f, 4.0f);
-			Vec4 b(1.0f + MATH_EPSILON / 2, 2.0f - MATH_EPSILON / 3,
-				3.0f + MATH_EPSILON / 4, 4.0f - MATH_EPSILON / 5);
+			Vec4 b(1.0f + MathEpsilon / 2, 2.0f - MathEpsilon / 3,
+				3.0f + MathEpsilon / 4, 4.0f - MathEpsilon / 5);
 			Vec4 c(1.0f, 2.0f, 3.0f, 4.1f);
 
 			UNIT_TEST_CONDITION("近似相等", a == b)

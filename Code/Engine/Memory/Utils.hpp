@@ -1,4 +1,4 @@
-// File /Engine/Utils/Concept.hpp
+// File /Engine/Memory/Utils.hpp
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -9,13 +9,24 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #pragma once
+
+#include "../Common/Type.hpp"
 #include <type_traits>
 
 namespace PenFramework::PenEngine
 {
-	template <typename T, typename... Ts>
-	concept IsOneOf = (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<Ts>> || ...);
+	template <typename T> requires std::is_trivially_copyable_v<T>
+	constexpr T* MemoryCopy(const T* from, T* to, usize bytes) noexcept
+	{
+		if consteval
+		{
+			for (usize i = 0; i < bytes; ++i)
+			{
+				to[i] = from[i];
+			}
+			return to;
+		}
 
-	template <typename From, typename To>
-	concept IsStaticCastable = requires(From && t) { static_cast<To>(std::forward<From>(t)); };
+		return static_cast<T*>(memcpy(to, from, bytes));
+	}
 }

@@ -1,4 +1,4 @@
-// File /Engine/Utils/Concept.hpp
+// File /Engine/String/StringSet.hpp
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -9,13 +9,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #pragma once
-#include <type_traits>
+
+#include <set>
+#include <string>
 
 namespace PenFramework::PenEngine
 {
-	template <typename T, typename... Ts>
-	concept IsOneOf = (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<Ts>> || ...);
-
-	template <typename From, typename To>
-	concept IsStaticCastable = requires(From && t) { static_cast<To>(std::forward<From>(t)); };
+	using StringSet = std::set<std::string, std::less<>>;
+	using StringMultiset = std::multiset<std::string, std::less<>>;
 }

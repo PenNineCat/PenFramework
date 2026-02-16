@@ -1,4 +1,4 @@
-// File /Engine/Utils/Concept.hpp
+// File /Engine/String/StringUnorderedSet.hpp
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -9,13 +9,12 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #pragma once
-#include <type_traits>
+
+#include "StringTransparentHash.hpp"
+#include <unordered_set>
 
 namespace PenFramework::PenEngine
 {
-	template <typename T, typename... Ts>
-	concept IsOneOf = (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<Ts>> || ...);
-
-	template <typename From, typename To>
-	concept IsStaticCastable = requires(From && t) { static_cast<To>(std::forward<From>(t)); };
+	using StringUnorderedSet = std::unordered_set<std::string, StringTransparentHash, std::equal_to<>, std::equal_to<>>;
+	using StringUnorderedMultiset = std::unordered_multiset<std::string, StringTransparentHash, std::equal_to<>, std::equal_to<>>;
 }
