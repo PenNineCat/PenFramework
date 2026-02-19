@@ -28,6 +28,10 @@ namespace PenFramework::PenEngine
 	constexpr double Ln2 = std::numbers::ln2;
 	constexpr double Ln10 = std::numbers::ln10;
 
+	template <typename T>
+	using NumericLimits = std::numeric_limits<T>;
+
+
 	/// @brief 计算向上取整到N的倍数的值
 	/// @param n 必须是2的幂且大于等于2
 	/// @param x 输入值
@@ -64,67 +68,192 @@ namespace PenFramework::PenEngine
 	[[nodiscard]] constexpr u64 Ceil4(u8 x) noexcept { return CeilPow2(x, 4); }
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
-	[[nodiscard]] constexpr T Clamp(T value, T low, T high)
+	[[nodiscard]] constexpr T Clamp(T value, T low, T high) noexcept
 	{
 		T tmp = value >= low ? value : low;
 		return  tmp <= high ? tmp : high;
 	}
 
 	template <typename T>
-	[[nodiscard]] constexpr T Clamp01(T value)
+	[[nodiscard]] constexpr T Clamp01(T value) noexcept
 	{
-		return Clamp(value,static_cast<T>(0),static_cast<T>(1));
-	}
-
-	template <typename T> requires std::is_integral_v<T>&& std::is_signed_v<T>
-	[[nodiscard]] constexpr T Abs(T value)
-	{
-		T mask = value >> (sizeof(T) * 8 - 1);
-		return (value + mask) ^ mask;
+		return Clamp(value, static_cast<T>(0), static_cast<T>(1));
 	}
 
 	template <typename T> requires std::is_floating_point_v<T>
-	[[nodiscard]] constexpr T Abs(T value)
+	[[nodiscard]] constexpr T Floor(T value) noexcept
 	{
-		if constexpr (std::is_same_v<T, float>)
+		if consteval
 		{
-			auto bits = std::bit_cast<std::uint32_t>(value);
-			bits &= 0x7FFFFFFFU;
-			return std::bit_cast<float>(bits);
+			if (value == static_cast<T>(0))
+				return value;
+
+			if (IsInfinity(value))
+				return value;
+
+			if (IsNaN(value))
+				return value;
+
+			if (value > 0)
+			{
+				constexpr T maxComputeValue = static_cast<T>(1) / NumericLimits<T>::epsilon();
+
+				if (value >= maxComputeValue)
+					return value;
+
+				T res = 1;
+
+				if (res <= value)
+				{
+					while (res < value)
+					{
+						res *= 2;
+					}
+					while (res > value)
+					{
+						--res;
+					}
+
+					return res;
+				}
+
+				return 0;
+			}
+
+			T res = -1;
+
+			if (res > value)
+			{
+				while (res > value)
+				{
+					res *= 2;
+				}
+				while (res < value)
+				{
+					++res;
+				}
+				if (res != value)
+				{
+					--res;
+				}
+			}
+
+			return res;
 		}
-		else if constexpr (std::is_same_v<T, double>)
+
+		return std::floor(value);
+	}
+
+	template <typename T> requires std::is_floating_point_v<T>
+	[[nodiscard]] constexpr T Ceil(T value) noexcept
+	{
+		if consteval
 		{
-			auto bits = std::bit_cast<std::uint64_t>(value);
-			bits &= 0x7FFFFFFFFFFFFFFFULL;
-			return std::bit_cast<double>(bits);
+			T result = Floor(value);
+
+			if (result == value)
+			{
+				return result;
+			}
+
+			return result + 1;
 		}
-		else
+
+		return std::ceil(value);
+	}
+
+	template <typename T> requires (sizeof(T) > 16)
+		[[nodiscard]] constexpr T Max(const T& left, const T& right) noexcept(noexcept(left < right))
+	{
+		return left < right ? right : left;
+	}
+
+	template <typename T> requires (sizeof(T) <= 16)
+		[[nodiscard]] constexpr T Max(T left, T right) noexcept(noexcept(left < right))
+	{
+		return left < right ? right : left;
+	}
+
+	template <typename T> requires (sizeof(T) > 16)
+		[[nodiscard]] constexpr T Min(const T& left, const T& right) noexcept(noexcept(left < right))
+	{
+		return left > right ? right : left;
+	}
+
+	template <typename T> requires (sizeof(T) <= 16)
+		[[nodiscard]] constexpr T Min(T left, T right) noexcept(noexcept(left < right))
+	{
+		return left > right ? right : left;
+	}
+
+	template <typename T> requires std::is_integral_v<T>&& std::is_signed_v<T>
+	[[nodiscard]] constexpr T Abs(T value) noexcept
+	{
+		if consteval
 		{
-			return value < 0.0f ? -value : value;
+			T mask = value >> (sizeof(T) * 8 - 1);
+			return (value + mask) ^ mask;
 		}
+
+		return std::abs(value);
+	}
+
+	template <typename T> requires std::is_floating_point_v<T>
+	[[nodiscard]] constexpr T Abs(T value) noexcept
+	{
+		if consteval
+		{
+			if constexpr (std::is_same_v<T, float>)
+			{
+				auto bits = std::bit_cast<std::uint32_t>(value);
+				bits &= 0x7FFFFFFFU;
+				return std::bit_cast<float>(bits);
+			}
+			else if constexpr (std::is_same_v<T, double>)
+			{
+				auto bits = std::bit_cast<std::uint64_t>(value);
+				bits &= 0x7FFFFFFFFFFFFFFFULL;
+				return std::bit_cast<double>(bits);
+			}
+			else
+			{
+				return value < 0.0f ? -value : value;
+			}
+		}
+		return std::abs(value);
 	}
 
 	template <typename T> requires std::is_arithmetic_v<T>
-	[[nodiscard]] constexpr T Lerp(T a, T b, float t)
+	[[nodiscard]] constexpr T Lerp(T a, T b, float t) noexcept
 	{
 		return a + (b - a) * Clamp01(t);
 	}
 
 	template <typename T> requires std::is_floating_point_v<T>
-	[[nodiscard]] constexpr bool IsInfinity(T value)
+	[[nodiscard]] constexpr bool IsInfinity(T value) noexcept
 	{
-		return value == std::numeric_limits<T>::infinity() || value == -std::numeric_limits<T>::infinity();  // NOLINT(clang-diagnostic-float-equal)
+		if consteval
+		{
+			return value == NumericLimits<T>::infinity() || value == -NumericLimits<T>::infinity();  // NOLINT(clang-diagnostic-float-equal)
+		}
+
+		return std::isinf(value);
 	}
 
 	template <typename T> requires std::is_floating_point_v<T>
-	[[nodiscard]] constexpr bool IsNaN(T value)
+	[[nodiscard]] constexpr bool IsNaN(T value) noexcept
 	{
+		if consteval
+		{
 		// ReSharper disable once CppIdenticalOperandsInBinaryExpression
-		return value != value;  // NOLINT(misc-redundant-expression)
+			return value != value;  // NOLINT(misc-redundant-expression)
+		}
+
+		return std::isnan(value);
 	}
 
 	template <typename T> requires std::is_floating_point_v<T>
-	[[nodiscard]] constexpr bool NearAbs(T a, T b, float epsilon = MathEpsilon)
+	[[nodiscard]] constexpr bool NearAbs(T a, T b, float epsilon = MathEpsilon) noexcept
 	{
 		if (a == b)  // NOLINT(clang-diagnostic-float-equal)
 			return true;
@@ -136,7 +265,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename T> requires std::is_floating_point_v<T>
-	[[nodiscard]] constexpr bool NearRel(T a, T b, float epsilon = MathEpsilon)
+	[[nodiscard]] constexpr bool NearRel(T a, T b, float epsilon = MathEpsilon) noexcept
 	{
 		if (a == b)  // NOLINT(clang-diagnostic-float-equal)
 			return true;

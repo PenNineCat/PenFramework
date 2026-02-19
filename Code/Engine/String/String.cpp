@@ -10,6 +10,8 @@
 
 #include "String.h"
 
+#include "../Math/MathFunction.hpp"
+
 namespace PenFramework::PenEngine
 {
 
@@ -41,7 +43,7 @@ namespace PenFramework::PenEngine
 		usize len = str.Size();
 		const cch* ptr = str.Data();
 
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -68,7 +70,7 @@ namespace PenFramework::PenEngine
 
 	String::String(usize capacity)
 	{
-		if (capacity <= StackCapacity)
+		if (capacity <= LocalStorageCapacity)
 			InitSSOBuffer();
 		else
 			InitHeapBuffer(capacity);
@@ -76,7 +78,7 @@ namespace PenFramework::PenEngine
 
 	String::String(cch ch, usize count)
 	{
-		if (count <= StackCapacity)
+		if (count <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 			for (usize i = 0; i < count; ++i)
@@ -104,7 +106,7 @@ namespace PenFramework::PenEngine
 	{
 		if (IsHeapBuffer())
 			return m_buffer.Heap.Capacity;
-		return StackCapacity;
+		return LocalStorageCapacity;
 	}
 
 	usize String::Size() const noexcept
@@ -121,6 +123,8 @@ namespace PenFramework::PenEngine
 
 	void String::Reserve(usize newCapacity)
 	{
+		newCapacity = CalculateReserveCapacity(newCapacity, Capacity());
+
 		if (IsHeapBuffer())
 		{
 			if (newCapacity > m_buffer.Heap.Capacity)
@@ -128,7 +132,7 @@ namespace PenFramework::PenEngine
 		}
 		else
 		{
-			if (newCapacity > StackCapacity)
+			if (newCapacity > LocalStorageCapacity)
 				SwitchToHeap(newCapacity);
 		}
 	}
@@ -152,7 +156,7 @@ namespace PenFramework::PenEngine
 
 	void String::ShrinkToFit()
 	{
-		if (usize size = Size(); size <= StackCapacity)
+		if (usize size = Size(); size <= LocalStorageCapacity)
 			SwitchToStack();
 		else
 			ReallocateHeapBuffer(size);
@@ -287,7 +291,7 @@ namespace PenFramework::PenEngine
 		}
 		else
 		{
-			DEBUG_VERIFY_REPORT(pos <= StackCapacity, "string subscript out of range")
+			DEBUG_VERIFY_REPORT(pos <= LocalStorageCapacity, "string subscript out of range")
 				m_buffer.Stack.Size = pos;
 			m_buffer.Stack.Buffer[pos] = cch();
 		}
@@ -336,6 +340,8 @@ namespace PenFramework::PenEngine
 
 	void String::InitHeapBuffer(usize capacity)
 	{
+		capacity = CalculateReserveCapacity(capacity, LocalStorageCapacity);
+
 		auto buffer = new cch[capacity + 1];
 
 		m_buffer.Heap.Size = 0;
@@ -343,6 +349,20 @@ namespace PenFramework::PenEngine
 		m_buffer.Heap.Buffer = buffer;
 		m_buffer.Heap.IsHeapBuffer = true;
 		m_buffer.Heap.Buffer[0] = cch();
+	}
+
+	usize String::CalculateReserveCapacity(usize requestCapacity, usize oldCapacity) const noexcept
+	{
+		usize max = PTRDIFF_MAX;
+
+		usize masked = requestCapacity | AllocateMask;
+		if(masked > max)
+			return max;
+
+		if(oldCapacity > max - oldCapacity / 2)
+			return max;
+
+		return Max(masked,oldCapacity + oldCapacity / 2);
 	}
 
 	void String::SwitchToHeap(usize capacity)
@@ -361,7 +381,7 @@ namespace PenFramework::PenEngine
 	void String::SwitchToStack() noexcept
 	{
 		cch* buffer = m_buffer.Heap.Buffer;
-		usize size = std::min(m_buffer.Heap.Size, StackCapacity);
+		usize size = std::min(m_buffer.Heap.Size, LocalStorageCapacity);
 		if (size > 0)
 			memcpy(m_buffer.Stack.Buffer, buffer, size);
 		delete[] buffer;

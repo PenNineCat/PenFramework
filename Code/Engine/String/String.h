@@ -10,10 +10,12 @@
 
 #pragma once
 
+#include <string>
+
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/Exception.hpp"
-#include "../Memory/MemoryAllocator.hpp"
+#include "../Memory/Memory.hpp"
 #include "../Memory/Utils.hpp"
 #include "../Utils/Concept.hpp"
 #include "Utils.hpp"
@@ -27,8 +29,10 @@ namespace PenFramework::PenEngine
 	class String
 	{
 	public:
-		static constexpr usize StackCapacity = 22;
+		static constexpr usize LocalStorageCapacity = 22;
 		static constexpr usize Npos = static_cast<usize>(-1);
+		static constexpr usize ReallocateMultiple = 2;
+		static constexpr usize AllocateMask = 15;
 
 		String() noexcept;
 		String(const String& str, usize len = Npos);
@@ -92,6 +96,8 @@ namespace PenFramework::PenEngine
 		void Append(const std::basic_string<T>& str, usize off = 0, usize len = Npos);
 		template <CanConvertToU8CharType T>
 		void Append(std::basic_string_view<T> str, usize off = 0, usize len = Npos);
+		template <typename T> requires std::is_arithmetic_v<T>
+		void Append(T v, usize off = 0);
 
 		String& operator+=(const String& str);
 		template <CanConvertToU8CharType T>
@@ -109,7 +115,6 @@ namespace PenFramework::PenEngine
 		template <CanConvertToU8CharType T>
 		String operator+(const std::basic_string<T>& str)const;
 
-		// 比较运算符
 		bool operator==(const String& str) const noexcept;
 		template <CanConvertToU8CharType T>
 		bool operator==(const T* ptr) const noexcept;
@@ -127,7 +132,7 @@ namespace PenFramework::PenEngine
 		template <CanConvertToU8CharType T>
 		bool Contain(std::basic_string_view<T> str, usize off = 0) const noexcept;
 
-		usize Find(const String& str,usize off = 0) const noexcept;
+		usize Find(const String& str, usize off = 0) const noexcept;
 		template <CanConvertToU8CharType T>
 		usize Find(T ch, usize off = 0) const noexcept;
 		template <CanConvertToU8CharType T>
@@ -146,7 +151,7 @@ namespace PenFramework::PenEngine
 		template <CanConvertToU8CharType T>
 		usize FindLastNotOf(T ch, usize off = Npos) const noexcept;
 
-		usize FindFirstOf(const String& str,usize off = 0) const noexcept;
+		usize FindFirstOf(const String& str, usize off = 0) const noexcept;
 		usize FindLastOf(const String& str, usize off = Npos) const noexcept;
 		usize FindFirstNotOf(const String& str, usize off = 0) const noexcept;
 		usize FindLastNotOf(const String& str, usize off = Npos) const noexcept;
@@ -189,6 +194,8 @@ namespace PenFramework::PenEngine
 		void InitSSOBuffer() noexcept;
 		void InitHeapBuffer(usize capacity);
 
+		usize CalculateReserveCapacity(usize requestCapacity, usize oldCapacity) const noexcept;
+
 		void SwitchToHeap(usize capacity);
 		void SwitchToStack() noexcept;
 		union Buffer
@@ -196,14 +203,14 @@ namespace PenFramework::PenEngine
 			struct Stack
 			{
 				u8 IsHeapBuffer : 1;
-				u8 Size : 7;
-				cch Buffer[StackCapacity + 1];
+				u8 Size : sizeof(u8) * 8 - 1;
+				cch Buffer[LocalStorageCapacity + 1];
 			} Stack;
 			struct Heap
 			{
 				usize IsHeapBuffer : 1;
-				usize Capacity : 7;
-				usize Size;
+				usize Capacity : sizeof(usize) * 8 - 1;
+				usize Size;	
 				cch* Buffer;
 			} Heap;
 		} m_buffer;
@@ -213,7 +220,7 @@ namespace PenFramework::PenEngine
 	template <CanConvertToU8CharType T>
 	String::String(const T* ptr, usize len)
 	{
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -239,7 +246,7 @@ namespace PenFramework::PenEngine
 		len = str.size();
 		cch* ptr = str.data();
 
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -259,7 +266,7 @@ namespace PenFramework::PenEngine
 		len = str.size();
 		cch* ptr = str.data();
 
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -287,7 +294,7 @@ namespace PenFramework::PenEngine
 		DeallocateBuffer();
 		usize len = str.size();
 		cch* ptr = str.data();
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
 		}
@@ -306,7 +313,7 @@ namespace PenFramework::PenEngine
 	{
 		DeallocateBuffer();
 		usize len = std::char_traits<T>::length(ptr);
-		if (len <= StackCapacity)
+		if (len <= LocalStorageCapacity)
 		{
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
 		}
@@ -363,6 +370,17 @@ namespace PenFramework::PenEngine
 	{
 		std::basic_string_view<T> view = str.substr(off, len);
 		Append(view.data(), view.size());
+	}
+
+	template <typename T> requires std::is_arithmetic_v<T>
+	void String::Append(T v, usize off)
+	{
+		constexpr usize bufferLength = std::numeric_limits<T>::digits10 + 2;
+		char buffer[bufferLength] = {};
+		auto [ec, ptr] = std::to_chars(buffer, bufferLength, v);
+
+		DEBUG_VERIFY_REPORT(ec == std::errc(), "buffer length must be large enough to accomodate the value")
+			Append(buffer, static_cast<usize>(ptr - buffer));
 	}
 
 	template <CanConvertToU8CharType T>
