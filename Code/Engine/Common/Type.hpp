@@ -38,4 +38,6 @@ namespace PenFramework::PenEngine
 	using ch32 = char32_t;
 	using f32 = float;
 	using f64 = double;
+
+	static constexpr usize BitsPerBytes = CHAR_BIT;
 }

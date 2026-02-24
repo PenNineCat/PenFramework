@@ -15,7 +15,7 @@
 #define CONCAT_(a,b) a##b
 #define CONCAT(a,b) CONCAT_(a,b)
 
-#define UNIQUE_VAR(var) CONCAT(CONCAT(var,_),__LINE__)
+#define UNIQUE_VAR_NAME(var) CONCAT(CONCAT(var,_),__LINE__)
 
 #define VA_TO_SEQ(...) BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)
 #define VA_TO_TUPLE(...) BOOST_PP_VARIADIC_TO_TUPLE(__VA_ARGS__)

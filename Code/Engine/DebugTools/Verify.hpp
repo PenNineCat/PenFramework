@@ -10,6 +10,10 @@
 #pragma once
 
 #ifdef _DEBUG
+#ifndef _MSC_VER
+#warning "PenFramework Container Internal Checker need MSVC Environment in current SDK Version, and it`s disable now."
+#define DEBUG_VERIFY_REPORT(cond,message)
+#else
 #define DEBUG_VERIFY_REPORT(cond,message) \
 	if(!(cond)) \
 	{ \
@@ -17,6 +21,7 @@
 		__fastfail(5); \
 		std::unreachable(); \
 	} 
+#endif // !_MSC_VER
 
 #else
 #define DEBUG_VERIFY_REPORT(cond,message)

@@ -45,17 +45,15 @@ struct TestName##_AutoRunner EXPAND_INHERIT_CLASS(__VA_ARGS__) \
 	}\
 	void TestMethod(PenFramework::UnitTest::Core::IUnitTestHandle* handle); \
 }; \
-inline PenFramework::UnitTest::Core::UnitTestAutoRegister UNIQUE_VAR(g_##TestName##_AutoRegister)(__FILE__,#TestName,&TestName##_AutoRunner::Invoker); \
+inline PenFramework::UnitTest::Core::UnitTestAutoRegister UNIQUE_VAR_NAME(g_##TestName##_AutoRegister)(__FILE__,#TestName,&TestName##_AutoRunner::Invoker); \
 inline void TestName##_AutoRunner::TestMethod(PenFramework::UnitTest::Core::IUnitTestHandle* handle)
 
+#ifndef UNIT_TEST_BENCHMARK
 #define UNIT_TEST_AREA_END(TestName) inline PenFramework::PenEngine::usize TestName##_AutoRunner::g_checkpointCount =  __COUNTER__ - TestName##_AutoRunner::g_checkpointCountMacroStart - 1;
-
 #define UNIT_TEST_CONDITION(message,condition) \
 	handle->Condition(message,condition,__LINE__);
-
 #define UNIT_TEST_MESSAGE(message) \
 	handle->Message(message,__LINE__);
-
 #define UNIT_TEST_CHECKPOINT(message) \
 	__COUNTER__; \
 	handle->Checkpoint(message,__LINE__);
@@ -95,6 +93,8 @@ catch(std::exception&e) \
 
 #define UNIT_TEST_FAILED(message) \
 	throw UnitTestFailedResult(message,__LINE__); \
+
+#endif // UNIT_TEST_BENCHMARK
 
 namespace PenFramework::UnitTest::Core
 {

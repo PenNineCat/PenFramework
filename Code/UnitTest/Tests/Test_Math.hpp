@@ -16,10 +16,6 @@
 #include "../../Engine/Math/Vec4.hpp"
 #include "../Core/UnitTestFramework.h"
 
-#include <exception>
-#include <numbers>
-#include <stacktrace>
-
 namespace PenFramework::UnitTest::Math
 {
 	using namespace PenEngine;

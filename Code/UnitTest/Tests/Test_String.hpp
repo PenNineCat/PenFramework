@@ -118,7 +118,7 @@ namespace PenFramework::UnitTest
 				String right = s.Right(2);
 			UNIT_TEST_CONDITION("Right(2) = EF", right == "EF")
 
-				String full = s.Substr();  // 默认 off=0, len=Npos
+				String full = s.Substr();  // 默认 off=0, len=NPos
 			UNIT_TEST_CONDITION("SubStr() = 全串", full == "ABCDEF")
 		}
 
