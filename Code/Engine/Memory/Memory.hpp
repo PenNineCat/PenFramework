@@ -9,26 +9,45 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #pragma once
 
+#include <atomic>
+
 #include "../Common/Type.hpp"
 
 namespace PenFramework::PenEngine::Memory
 {
+	static std::atomic<usize> g_currentMemoryAllocatedBytes;
+
 	template <typename T>
 	static T* Allocate(usize count)
 	{
-		return operator new(count * sizeof(T), alignof(T));
+		#ifdef _DEBUG
+		g_currentMemoryAllocatedBytes.fetch_add(count * sizeof(T), std::memory_order::relaxed);
+		#endif // _DEBUG
+
+		return static_cast<T*>(operator new(count * sizeof(T), std::align_val_t{alignof(T)}));
 	}
 
 	template <typename T>
 	static void Deallocate(T* buffer, usize count) noexcept
 	{
-		operator delete(buffer, count, alignof(T));
+		#ifdef _DEBUG
+		g_currentMemoryAllocatedBytes.fetch_sub(count * sizeof(T), std::memory_order::relaxed);
+		#endif // _DEBUG
+
+		operator delete(buffer, count * sizeof(T), std::align_val_t{alignof(T)});
 	}
 
 	template <typename T, typename... Args>
 	static void Construct(T* position, Args&&... args)
 	{
 		new (position) T(std::forward<Args>(args)...);
+	}
+
+	template <typename T>
+	static void Destroy(T* object)
+	{
+		if constexpr (!std::is_trivially_destructible_v<T>)
+			object->~T();
 	}
 
 	template <typename T>

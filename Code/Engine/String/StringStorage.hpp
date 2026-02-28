@@ -35,6 +35,106 @@ namespace PenFramework::PenEngine
 
 		using CharTraits = std::char_traits<StorageType>;
 
+		using value_type = StorageType;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+
+		using size_type = usize;
+		using difference_type = isize;
+
+		class ConstIterator
+		{
+		public:
+			using iterator_category = std::random_access_iterator_tag;
+			using value_type = value_type;
+			using difference_type = difference_type;
+			using pointer = const_pointer;
+			using reference = const_reference;
+
+			ConstIterator() noexcept = default;
+			explicit ConstIterator(pointer ptr) noexcept : m_ptr(ptr) {}
+
+			reference operator*() const noexcept { return *m_ptr; }
+			pointer operator->() const noexcept { return m_ptr; }
+
+			ConstIterator& operator++() noexcept { ++m_ptr; return *this; }
+			ConstIterator operator++(int) noexcept { ConstIterator tmp = *this; ++(*this); return tmp; }
+
+			ConstIterator& operator--() noexcept { --m_ptr; return *this; }
+			ConstIterator operator--(int) noexcept { ConstIterator tmp = *this; --(*this); return tmp; }
+
+			friend ConstIterator operator+(ConstIterator it, difference_type n) noexcept {
+				it += n; return it;
+			}
+			friend ConstIterator operator+(difference_type n, ConstIterator it) noexcept {
+				it += n; return it;
+			}
+			friend ConstIterator operator-(ConstIterator it, difference_type n) noexcept {
+				it -= n; return it;
+			}
+
+			friend difference_type operator-(ConstIterator lhs, ConstIterator rhs) noexcept {
+				return lhs.m_ptr - rhs.m_ptr;
+			}
+
+			reference operator[](difference_type n) const noexcept { return m_ptr[n]; }
+
+			bool operator==(const ConstIterator& other) const noexcept = default;
+			bool operator<=>(const ConstIterator& other) const noexcept = default;
+
+		protected:
+			pointer m_ptr;
+		};
+
+		class Iterator : public ConstIterator
+		{
+		public:
+			using iterator_category = std::random_access_iterator_tag;
+			using value_type = value_type;
+			using difference_type = difference_type;
+			using pointer = pointer;
+			using reference = reference;
+
+			constexpr Iterator() noexcept : ConstIterator() {}
+			explicit constexpr Iterator(pointer ptr) noexcept : ConstIterator(ptr) {}
+
+			reference operator*() const noexcept { return *const_cast<pointer>(this->m_ptr); }
+			pointer operator->() const noexcept { return const_cast<pointer>(this->m_ptr); }
+
+			Iterator& operator++() noexcept { ++this->m_ptr; return *this; }
+			Iterator operator++(int) noexcept { Iterator tmp = *this; ++(*this); return tmp; }
+			Iterator& operator--() noexcept { --this->m_ptr; return *this; }
+			Iterator operator--(int) noexcept { Iterator tmp = *this; --(*this); return tmp; }
+
+			Iterator& operator+=(difference_type n) noexcept { this->m_ptr += n; return *this; }
+			Iterator& operator-=(difference_type n) noexcept { this->m_ptr -= n; return *this; }
+
+			friend Iterator operator+(Iterator it, difference_type n) noexcept { it += n; return it; }
+			friend Iterator operator+(difference_type n, Iterator it) noexcept { it += n; return it; }
+			friend Iterator operator-(Iterator it, difference_type n) noexcept { it -= n; return it; }
+
+			friend difference_type operator-(const Iterator& lhs, const Iterator& rhs) noexcept {
+				return lhs.m_ptr - rhs.m_ptr;
+			}
+
+			friend difference_type operator-(const Iterator& lhs, const ConstIterator& rhs) noexcept {
+				return lhs.m_ptr - rhs.m_ptr;
+			}
+
+			reference operator[](difference_type n) const noexcept { return const_cast<reference>(this->m_ptr[n]); }
+
+			bool operator==(const Iterator&) const noexcept = default;
+			bool operator==(const ConstIterator& other) const noexcept { return this->m_ptr == other.m_ptr; }
+
+			bool operator<=>(const Iterator&) const noexcept = default;
+			bool operator<=>(const ConstIterator& other) const noexcept { return this->m_ptr <=> other.m_ptr; }
+		};
+
+		using ReverseIterator = std::reverse_iterator<Iterator>;
+		using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
+
 		StringStorage() noexcept;
 
 		explicit StringStorage(usize capacity);
@@ -45,11 +145,11 @@ namespace PenFramework::PenEngine
 		StringStorage(const StringStorage& other);
 		StringStorage(StringStorage&& other) noexcept;
 
-		StringStorage(const StringStorage& other,usize len);
+		StringStorage(const StringStorage& other, usize len);
 
 		StringStorage& operator=(const StringStorage& other);
 		StringStorage& operator=(StringStorage&& other) noexcept;
-		StringStorage& operator=(const StorageType * str);
+		StringStorage& operator=(const StorageType* str);
 		StringStorage& operator=(const std::basic_string<StorageType>& str);
 		StringStorage& operator=(std::basic_string_view<StorageType> str);
 		StringStorage& operator=(StorageType ch);
@@ -92,6 +192,22 @@ namespace PenFramework::PenEngine
 		void Append(const StorageType* str);
 		void Append(const StorageType* str, usize len);
 		void Append(StorageType ch, usize count = 1);
+		void Append(const std::basic_string<StorageType>& str);
+		void Append(std::basic_string_view<StorageType>& str);
+
+		void PushBack(const StringStorage& other);
+		void PushBack(const StorageType* str);
+		void PushBack(const StorageType* str, usize len);
+		void PushBack(StorageType ch, usize count = 1);
+		void PushBack(const std::basic_string<StorageType>& str);
+		void PushBack(std::basic_string_view<StorageType>& str);
+
+		void PushFront(const StringStorage& other);
+		void PushFront(const StorageType* str);
+		void PushFront(const StorageType* str, usize len);
+		void PushFront(StorageType ch, usize count = 1);
+		void PushFront(const std::basic_string<StorageType>& str);
+		void PushFront(std::basic_string_view<StorageType>& str);
 
 		template <typename T> requires (std::is_arithmetic_v<T> && !std::is_same_v<T, StorageType>)
 			void Append(T v);
@@ -102,44 +218,72 @@ namespace PenFramework::PenEngine
 		bool Contain(const std::basic_string<StorageType>& str, usize off = 0) const noexcept;
 		bool Contain(std::basic_string_view<StorageType>& str, usize off = 0) const noexcept;
 
+		ConstIterator begin() const noexcept;
+		ConstIterator end() const noexcept;
+		ConstIterator cbegin() const noexcept;
+		ConstIterator cend() const noexcept;
+		Iterator begin() noexcept;
+		Iterator end() noexcept;
+
+		ConstReverseIterator rbegin() const noexcept;
+		ConstReverseIterator rend() const noexcept;
+		ConstReverseIterator crbegin() const noexcept;
+		ConstReverseIterator crend() const noexcept;
+		ReverseIterator rbegin() noexcept;
+		ReverseIterator rend() noexcept;
+
+		ConstIterator Begin() const noexcept;
+		ConstIterator End() const noexcept;
+		ConstIterator CBegin() const noexcept;
+		ConstIterator CEnd() const noexcept;
+		Iterator Begin() noexcept;
+		Iterator End() noexcept;
+
+		ConstReverseIterator RBegin() const noexcept;
+		ConstReverseIterator REnd() const noexcept;
+		ConstReverseIterator CRBegin() const noexcept;
+		ConstReverseIterator CREnd() const noexcept;
+		ReverseIterator RBegin() noexcept;
+		ReverseIterator REnd() noexcept;
+
 		StorageType Front() const noexcept;
 		StorageType Back() const noexcept;
 
-		StorageType& operator[](usize pos) noexcept;
-		StorageType operator[](usize pos) const noexcept;
+		reference operator[](usize pos) noexcept;
+		const_reference operator[](usize pos) const noexcept;
 
 		usize Find(StorageType ch, usize off = 0) const noexcept;
 		usize Find(const StringStorage& other, usize off = 0) const noexcept;
 		usize Find(const StorageType* str, usize off = 0) const noexcept;
-		usize Find(const StorageType* str, usize len, usize off = 0) const noexcept;
+		usize Find(const StorageType* str, usize off, usize len) const noexcept;
 		usize Find(const std::basic_string<StorageType>& str, usize off = 0) const noexcept;
 		usize Find(std::basic_string_view<StorageType>& str, usize off = 0) const noexcept;
 
 		usize FindFirstOf(StorageType ch, usize off = 0) const noexcept;
 		usize FindFirstOf(const StringStorage& other, usize off = 0) const noexcept;
 		usize FindFirstOf(const StorageType* str, usize off = 0) const noexcept;
-		usize FindFirstOf(const StorageType* str, usize len, usize off = 0) const noexcept;
+		usize FindFirstOf(const StorageType* str, usize off, usize len) const noexcept;
 		usize FindFirstOf(const std::basic_string<StorageType>& str, usize off = 0) const noexcept;
 		usize FindFirstOf(std::basic_string_view<StorageType> str, usize off = 0) const noexcept;
 
 		usize FindLastOf(StorageType ch, usize off = NPos) const noexcept;
 		usize FindLastOf(const StringStorage& other, usize off = NPos) const noexcept;
 		usize FindLastOf(const StorageType* str, usize off = NPos) const noexcept;
-		usize FindLastOf(const StorageType* str, usize len, usize off = NPos) const noexcept;
+		usize FindLastOf(const StorageType* str, usize off, usize len) const noexcept;
 		usize FindLastOf(const std::basic_string<StorageType>& str, usize off = NPos) const noexcept;
 		usize FindLastOf(std::basic_string_view<StorageType> str, usize off = NPos) const noexcept;
 
 		usize FindFirstNotOf(StorageType ch, usize off = 0) const noexcept;
 		usize FindFirstNotOf(const StringStorage& other, usize off = 0) const noexcept;
 		usize FindFirstNotOf(const StorageType* str, usize off = 0) const noexcept;
-		usize FindFirstNotOf(const StorageType* str, usize len, usize off = 0) const noexcept;
+		usize FindFirstNotOf(const StorageType* str, usize off, usize len) const noexcept;
 		usize FindFirstNotOf(const std::basic_string<StorageType>& str, usize off = 0) const noexcept;
 		usize FindFirstNotOf(std::basic_string_view<StorageType> str, usize off = 0) const noexcept;
 
 		usize FindLastNotOf(StorageType ch, usize off = NPos) const noexcept;
 		usize FindLastNotOf(const StringStorage& other, usize off = NPos) const noexcept;
 		usize FindLastNotOf(const StorageType* str, usize off = NPos) const noexcept;
-		usize FindLastNotOf(const StorageType* str, usize len, usize off = NPos) const noexcept;
+		usize FindLastNotOf(const StorageType* str, usize off, usize len) const noexcept;
 		usize FindLastNotOf(const std::basic_string<StorageType>& str, usize off = NPos) const noexcept;
 		usize FindLastNotOf(std::basic_string_view<StorageType> str, usize off = NPos) const noexcept;
 	protected:
@@ -264,8 +408,7 @@ namespace PenFramework::PenEngine
 
 	template <typename StorageType>
 	StringStorage<StorageType>::StringStorage(const StringStorage& other, usize len) : StringStorage(other.Data(), std::min(len, other.Size()))
-	{
-	}
+	{}
 
 	template <typename StorageType>
 	StringStorage<StorageType>& StringStorage<StorageType>::operator=(const StringStorage& other)
@@ -396,7 +539,7 @@ namespace PenFramework::PenEngine
 
 		ReserveExtra(strLength);
 
-		memcpy(Buffer() + curSize,str,strLength * sizeof(StorageType));
+		memcpy(Buffer() + curSize, str, strLength * sizeof(StorageType));
 
 		ResetSizeAndEos(curSize + strLength);
 
@@ -410,7 +553,7 @@ namespace PenFramework::PenEngine
 		usize strSize = str.size();
 
 		ReserveExtra(strSize);
-		
+
 		memcpy(Buffer() + curSize, str.data(), strSize * sizeof(StorageType));
 
 		ResetSizeAndEos(curSize + strSize);
@@ -649,6 +792,108 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename StorageType>
+	void StringStorage<StorageType>::Append(const std::basic_string<StorageType>& str)
+	{
+		Append(str.data(), str.size());
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::Append(std::basic_string_view<StorageType>& str)
+	{
+		Append(str.data(), str.size());
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(const StringStorage& other)
+	{
+		Append(other);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(const StorageType* str)
+	{
+		Append(str);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(const StorageType* str, usize len)
+	{
+		Append(str, len);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(StorageType ch, usize count)
+	{
+		Append(ch, count);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(const std::basic_string<StorageType>& str)
+	{
+		Append(str);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushBack(std::basic_string_view<StorageType>& str)
+	{
+		Append(str);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(const StringStorage& other)
+	{
+		if (other.IsHeapBuffer())
+			PushFront(other.m_buffer.Heap.Buffer, other.m_buffer.Heap.Size);
+		else
+			PushFront(other.m_buffer.Stack.Buffer, other.m_buffer.Stack.Size);
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(const StorageType* str)
+	{
+		PushFront(str, CharTraits::length(str));
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(const StorageType* str, usize len)
+	{
+		ReserveExtra(len);
+
+		StorageType* buffer = Buffer();
+		usize size = Size();
+
+		std::copy_backward(buffer, buffer + size, buffer + size + len);
+
+		memcpy(buffer, str, len * sizeof(StorageType));
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(StorageType ch, usize count)
+	{
+		ReserveExtra(count);
+
+		StorageType* buffer = Buffer();
+		usize size = Size();
+
+		std::copy_backward(buffer, buffer + size, buffer + size +  count);
+		
+		for (usize i = 0; i < count; ++i)
+			buffer[i] = ch;
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(const std::basic_string<StorageType>& str)
+	{
+		PushFront(str.data(), str.size());
+	}
+
+	template <typename StorageType>
+	void StringStorage<StorageType>::PushFront(std::basic_string_view<StorageType>& str)
+	{
+		PushFront(str.data(), str.size());
+	}
+
+	template <typename StorageType>
 	template <typename T> requires (std::is_arithmetic_v<T> && !std::is_same_v<T, StorageType>)
 		void StringStorage<StorageType>::Append(T v)
 	{
@@ -691,6 +936,150 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::begin() const noexcept
+	{
+		return ConstIterator(Buffer());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::end() const noexcept
+	{
+		return ConstIterator(Buffer() + Size());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::cbegin() const noexcept
+	{
+		return ConstIterator(Buffer());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::cend() const noexcept
+	{
+		return ConstIterator(Buffer() + Size());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::Iterator StringStorage<StorageType>::begin() noexcept
+	{
+		return Iterator(Buffer());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::Iterator StringStorage<StorageType>::end() noexcept
+	{
+		return Iterator(Buffer() + Size());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::rbegin() const noexcept
+	{
+		return ConstReverseIterator(end());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::rend() const noexcept
+	{
+		return ConstReverseIterator(begin());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::crbegin() const noexcept
+	{
+		return ConstReverseIterator(cend());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::crend() const noexcept
+	{
+		return ConstReverseIterator(cbegin());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ReverseIterator StringStorage<StorageType>::rbegin() noexcept
+	{
+		return ReverseIterator(end());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ReverseIterator StringStorage<StorageType>::rend() noexcept
+	{
+		return ReverseIterator(begin());
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::Begin() const noexcept
+	{
+		return begin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::End() const noexcept
+	{
+		return end();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::CBegin() const noexcept
+	{
+		return cbegin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstIterator StringStorage<StorageType>::CEnd() const noexcept
+	{
+		return cend();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::Iterator StringStorage<StorageType>::Begin() noexcept
+	{
+		return begin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::Iterator StringStorage<StorageType>::End() noexcept
+	{
+		return end();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::RBegin() const noexcept
+	{
+		return rbegin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::REnd() const noexcept
+	{
+		return rend();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::CRBegin() const noexcept
+	{
+		return crbegin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ConstReverseIterator StringStorage<StorageType>::CREnd() const noexcept
+	{
+		return crend();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ReverseIterator StringStorage<StorageType>::RBegin() noexcept
+	{
+		return rbegin();
+	}
+
+	template <typename StorageType>
+	typename StringStorage<StorageType>::ReverseIterator StringStorage<StorageType>::REnd() noexcept
+	{
+		return rend();
+	}
+
+	template <typename StorageType>
 	StorageType StringStorage<StorageType>::Front() const noexcept
 	{
 		return Buffer()[0];
@@ -703,17 +1092,17 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename StorageType>
-	StorageType& StringStorage<StorageType>::operator[](usize pos) noexcept
+	StringStorage<StorageType>::reference StringStorage<StorageType>::operator[](usize pos) noexcept
 	{
 		DEBUG_VERIFY_REPORT(pos < Size(), "string subscription out of range")
-		return Buffer()[pos];
+			return Buffer()[pos];
 	}
 
 	template <typename StorageType>
-	StorageType StringStorage<StorageType>::operator[](usize pos) const noexcept
+	StringStorage<StorageType>::const_reference StringStorage<StorageType>::operator[](usize pos) const noexcept
 	{
 		DEBUG_VERIFY_REPORT(pos < Size(), "string subscription out of range")
-		return Buffer()[pos];
+			return Buffer()[pos];
 	}
 
 	template <typename StorageType>
@@ -745,17 +1134,17 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::Find(const StringStorage& other, usize off) const noexcept
 	{
-		return Find(other.Data(), other.Size(), off);
+		return Find(other.Data(), off, other.Size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::Find(const StorageType* str, usize off) const noexcept
 	{
-		return Find(str, CharTraits::length(str), off);
+		return Find(str, off, CharTraits::length(str));
 	}
 
 	template <typename StorageType>
-	usize StringStorage<StorageType>::Find(const StorageType* str, usize len, usize off) const noexcept
+	usize StringStorage<StorageType>::Find(const StorageType* str, usize off, usize len) const noexcept
 	{
 		const StorageType* source = Data();
 		usize sourceLength = Size();
@@ -770,7 +1159,7 @@ namespace PenFramework::PenEngine
 		const StorageType* sourceEnd = source + sourceLength;
 
 		#ifdef _USE_STD_VECTOR_ALGORITHMS
-		const StorageType* res = std::_Search_vectorized(sourceStart, sourceEnd, str, str + len);
+		const StorageType* res = std::_Search_vectorized(sourceStart, sourceEnd, str, len);
 
 		if (res != sourceEnd)
 			return static_cast<usize>(res - source);
@@ -798,13 +1187,13 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::Find(const std::basic_string<StorageType>& str, usize off) const noexcept
 	{
-		return Find(str.data(), str.size(), off);
+		return Find(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::Find(std::basic_string_view<StorageType>& str, usize off) const noexcept
 	{
-		return Find(str.data(), str.size(), off);
+		return Find(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
@@ -836,17 +1225,17 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstOf(const StringStorage& other, usize off) const noexcept
 	{
-		return FindFirstOf(other.Data(), other.Size(), off);
+		return FindFirstOf(other.Data(), off, other.Size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstOf(const StorageType* str, usize off) const noexcept
 	{
-		return FindFirstOf(str, CharTraits::length(str), off);
+		return FindFirstOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename StorageType>
-	usize StringStorage<StorageType>::FindFirstOf(const StorageType* str, usize len, usize off) const noexcept
+	usize StringStorage<StorageType>::FindFirstOf(const StorageType* str, usize off, usize len) const noexcept
 	{
 		const StorageType* source = Data();
 		usize sourceLength = Size();
@@ -891,13 +1280,13 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstOf(const std::basic_string<StorageType>& str, usize off) const noexcept
 	{
-		return FindFirstOf(str.data(), str.size(), off);
+		return FindFirstOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstOf(std::basic_string_view<StorageType> str, usize off) const noexcept
 	{
-		return FindFirstOf(str.data(), str.size(), off);
+		return FindFirstOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
@@ -938,17 +1327,17 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastOf(const StringStorage& other, usize off) const noexcept
 	{
-		return FindLastOf(other.Data(), other.Size(), off);
+		return FindLastOf(other.Data(), off, other.Size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastOf(const StorageType* str, usize off) const noexcept
 	{
-		return FindLastOf(str, CharTraits::length(str), off);
+		return FindLastOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename StorageType>
-	usize StringStorage<StorageType>::FindLastOf(const StorageType* str, usize len, usize off) const noexcept
+	usize StringStorage<StorageType>::FindLastOf(const StorageType* str, usize off, usize len) const noexcept
 	{
 		const StorageType* source = Data();
 		usize sourceLength = Size();
@@ -991,13 +1380,13 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastOf(const std::basic_string<StorageType>& str, usize off) const noexcept
 	{
-		return FindLastOf(str.data(), str.size(), off);
+		return FindLastOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastOf(std::basic_string_view<StorageType> str, usize off) const noexcept
 	{
-		return FindLastOf(str.data(), str.size(), off);
+		return FindLastOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
@@ -1019,7 +1408,7 @@ namespace PenFramework::PenEngine
 		return NPos;
 		#endif // _USE_STD_VECTOR_ALGORITHMS
 
-		for (auto matchPosition = sourceStart; matchPosition < sourceEnd; ++matchPosition) 
+		for (auto matchPosition = sourceStart; matchPosition < sourceEnd; ++matchPosition)
 		{
 			if (!CharTraits::eq(*matchPosition, ch))
 			{
@@ -1033,17 +1422,17 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstNotOf(const StringStorage& other, usize off) const noexcept
 	{
-		return FindFirstNotOf(other.Data(), other.Size(), off);
+		return FindFirstNotOf(other.Data(), off, other.Size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstNotOf(const StorageType* str, usize off) const noexcept
 	{
-		return FindFirstNotOf(str, CharTraits::length(str), off);
+		return FindFirstNotOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename StorageType>
-	usize StringStorage<StorageType>::FindFirstNotOf(const StorageType* str, usize len, usize off) const noexcept
+	usize StringStorage<StorageType>::FindFirstNotOf(const StorageType* str, usize off, usize len) const noexcept
 	{
 		const StorageType* source = Data();
 		usize sourceLength = Size();
@@ -1089,13 +1478,13 @@ namespace PenFramework::PenEngine
 	usize StringStorage<StorageType>::FindFirstNotOf(const std::basic_string<StorageType>& str,
 													 usize off) const noexcept
 	{
-		return FindFirstNotOf(str.data(), str.size(), off);
+		return FindFirstNotOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindFirstNotOf(std::basic_string_view<StorageType> str, usize off) const noexcept
 	{
-		return FindFirstNotOf(str.data(), str.size(), off);
+		return FindFirstNotOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
@@ -1131,17 +1520,17 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastNotOf(const StringStorage& other, usize off) const noexcept
 	{
-		return FindLastNotOf(other.Data(), other.Size(), off);
+		return FindLastNotOf(other.Data(), off, other.Size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastNotOf(const StorageType* str, usize off) const noexcept
 	{
-		return FindLastNotOf(str, CharTraits::length(str), off);
+		return FindLastNotOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename StorageType>
-	usize StringStorage<StorageType>::FindLastNotOf(const StorageType* str, usize len, usize off) const noexcept
+	usize StringStorage<StorageType>::FindLastNotOf(const StorageType* str, usize off, usize len) const noexcept
 	{
 		const StorageType* source = Data();
 		usize sourceLength = Size();
@@ -1158,7 +1547,6 @@ namespace PenFramework::PenEngine
 		if (usize vectorizedTargetLength = off + 1; vectorizedTargetLength >= std::_Threshold_find_first_of)
 			return std::_Find_last_not_of_pos_vectorized(source, off + 1, str, len);
 		#endif // _USE_STD_VECTOR_ALGORITHMS
-
 
 		if constexpr (IsOneOf<StorageType, char, char8_t>)
 		{
@@ -1188,13 +1576,13 @@ namespace PenFramework::PenEngine
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastNotOf(const std::basic_string<StorageType>& str, usize off) const noexcept
 	{
-		return FindLastNotOf(str.data(), str.size(), off);
+		return FindLastNotOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>
 	usize StringStorage<StorageType>::FindLastNotOf(std::basic_string_view<StorageType> str, usize off) const noexcept
 	{
-		return FindLastNotOf(str.data(), str.size(), off);
+		return FindLastNotOf(str.data(), off, str.size());
 	}
 
 	template <typename StorageType>

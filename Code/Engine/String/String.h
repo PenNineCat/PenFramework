@@ -11,6 +11,7 @@
 #pragma once
 
 #include "StringStorage.hpp"
+#include <format>
 
 namespace PenFramework::PenEngine
 {
@@ -25,3 +26,12 @@ namespace PenFramework::PenEngine
 		String Left(usize len) const;
 	};
 }
+
+template <>
+struct std::formatter<PenFramework::PenEngine::String>
+{
+	static auto format(const PenFramework::PenEngine::String& value, std::format_context& ctx)
+	{
+		return std::format_to(ctx.out(), "{}", value.Data());
+	}
+};

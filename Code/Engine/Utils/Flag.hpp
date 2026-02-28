@@ -88,8 +88,8 @@ namespace PenFramework::PenEngine
 		constexpr Flag& operator=(const Flag&) noexcept = default;
 		constexpr Flag& operator=(Flag&&) noexcept = default;
 
-		explicit constexpr Flag(EnumType flag) noexcept :
-			m_value(flag) {}
+		/* implicit */ constexpr Flag(EnumType flag) noexcept :
+			m_value(static_cast<EnumUnderlyingType>(flag)) {}
 
 		constexpr Flag& operator=(EnumType flag) noexcept
 		{

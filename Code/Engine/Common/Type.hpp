@@ -31,6 +31,7 @@ namespace PenFramework::PenEngine
 	/// @brief struct _Signed128
 	using i128c = std::_Signed128;
 	using usize = size_t;
+	using isize = ptrdiff_t;
 	using cch = char;
 	using wch = wchar_t;
 	using ch8 = char8_t;

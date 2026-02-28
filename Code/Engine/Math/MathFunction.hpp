@@ -80,6 +80,37 @@ namespace PenFramework::PenEngine
 		return Clamp(value, static_cast<T>(0), static_cast<T>(1));
 	}
 
+	template <typename T> requires std::is_arithmetic_v<T>
+	[[nodiscard]] constexpr T Pow(T base, usize exponent) noexcept
+	{
+		if consteval
+		{
+			if (exponent == static_cast<T>(0))
+				return static_cast<T>(1);
+
+			if (base == static_cast<T>(0))
+				return static_cast<T>(0);
+
+			T result = static_cast<T>(1);
+
+			T currentProduct = base;
+			T currentExponent = exponent;
+
+			while (currentExponent > static_cast<T>(0))
+			{
+				if (static_cast<int>(currentExponent) % 2 == 1)
+				{
+					result *= currentProduct;
+				}
+				currentProduct *= currentProduct;
+				currentExponent /= static_cast<T>(2);
+			}
+			return result;
+		}
+
+		return std::pow(base, exponent);
+	}
+
 	template <typename T> requires std::is_floating_point_v<T>
 	[[nodiscard]] constexpr T Floor(T value) noexcept
 	{
@@ -143,7 +174,7 @@ namespace PenFramework::PenEngine
 
 		return std::floor(value);
 	}
-
+	
 	template <typename T> requires std::is_floating_point_v<T>
 	[[nodiscard]] constexpr T Ceil(T value) noexcept
 	{
@@ -160,30 +191,6 @@ namespace PenFramework::PenEngine
 		}
 
 		return std::ceil(value);
-	}
-
-	template <typename T> requires (sizeof(T) > 16)
-		[[nodiscard]] constexpr T Max(const T& left, const T& right) noexcept(noexcept(left < right))
-	{
-		return left < right ? right : left;
-	}
-
-	template <typename T> requires (sizeof(T) <= 16)
-		[[nodiscard]] constexpr T Max(T left, T right) noexcept(noexcept(left < right))
-	{
-		return left < right ? right : left;
-	}
-
-	template <typename T> requires (sizeof(T) > 16)
-		[[nodiscard]] constexpr T Min(const T& left, const T& right) noexcept(noexcept(left < right))
-	{
-		return left > right ? right : left;
-	}
-
-	template <typename T> requires (sizeof(T) <= 16)
-		[[nodiscard]] constexpr T Min(T left, T right) noexcept(noexcept(left < right))
-	{
-		return left > right ? right : left;
 	}
 
 	template <typename T> requires std::is_integral_v<T>&& std::is_signed_v<T>
