@@ -14,7 +14,9 @@
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/InvalidArgument.hpp"
+#include "../Utils/Ranges.hpp"
 #include "StrSearchUtils.hpp"
+#include <format>
 #include <string>
 
 namespace PenFramework::PenEngine
@@ -26,7 +28,8 @@ namespace PenFramework::PenEngine
 	class StringConstIterator
 	{
 	public:
-		using iterator_category = std::random_access_iterator_tag;
+		using iterator_category = std::contiguous_iterator_tag;
+		using iterator_concept = std::contiguous_iterator_tag;
 
 		using value_type = CharType;
 		using difference_type = isize;
@@ -60,8 +63,7 @@ namespace PenFramework::PenEngine
 
 		StringConstIterator operator++(int) noexcept
 		{
-			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
-				StringConstIterator tmp = *this;
+			StringConstIterator tmp = *this;
 			++(*this);
 			return tmp;
 		}
@@ -72,31 +74,47 @@ namespace PenFramework::PenEngine
 				--m_ptr;
 			return *this;
 		}
+
 		StringConstIterator operator--(int) noexcept
 		{
-			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
-				StringConstIterator tmp = *this;
+			StringConstIterator tmp = *this;
 			--(*this);
 			return tmp;
 		}
 
-		friend StringConstIterator operator+(StringConstIterator it, difference_type n) noexcept
+		StringConstIterator& operator+=(difference_type off)
 		{
-			it += n; return it;
-		}
-		friend StringConstIterator operator+(difference_type n, StringConstIterator it) noexcept
-		{
-			it += n; return it;
-		}
-		friend StringConstIterator operator-(StringConstIterator it, difference_type n) noexcept
-		{
-			it -= n; return it;
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				m_ptr += off;
+			return *this;
 		}
 
-		friend difference_type operator-(StringConstIterator lhs, StringConstIterator rhs) noexcept
+		StringConstIterator& operator-=(difference_type off)
 		{
-			DEBUG_VERIFY_REPORT(lhs.m_ptr && rhs.m_ptr, "cannot dereference value-initialized string iterator")
-				return lhs.m_ptr - rhs.m_ptr;
+			return (*this) += -off;
+		}
+
+		friend StringConstIterator operator+(StringConstIterator it, int n) {
+			it += n;
+			return it;
+		}
+
+		friend StringConstIterator operator+(int n, StringConstIterator it) {
+			it += n;
+			return it;
+		}
+
+		StringConstIterator operator-(difference_type off) const noexcept
+		{
+			StringConstIterator tmp = *this;
+			tmp -= off;
+			return tmp;
+		}
+
+		difference_type operator-(const StringConstIterator& it) const noexcept
+		{
+			DEBUG_VERIFY_REPORT(it.m_ptr && m_ptr, "cannot dereference value-initialized string iterator")
+				return static_cast<difference_type>(m_ptr - it.m_ptr);
 		}
 
 		reference operator[](difference_type n) const noexcept
@@ -140,11 +158,36 @@ namespace PenFramework::PenEngine
 		using ConstIterator = const_iterator;
 
 		BasicStringView() noexcept = default;
-		explicit BasicStringView(CharType* str) noexcept : BasicStringView(str, std::char_traits<CharType>::length(str)) {}
-		BasicStringView(CharType* str, usize len) noexcept : m_str(str), m_len(len) {}
+		/*implict*/ BasicStringView(const CharType* str) noexcept : BasicStringView(str, std::char_traits<CharType>::length(str)) {}
+		BasicStringView(const CharType* str, usize len) noexcept : m_str(str), m_len(len) {}
 
-		explicit BasicStringView(std::basic_string_view<CharType> str) noexcept : BasicStringView(str.data(), str.size()) {}
-		explicit BasicStringView(const std::basic_string<CharType>& str) noexcept : BasicStringView(str.data(), str.size()) {}
+		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
+		&& Ranges::ContiguousRange<Range>
+			&& Ranges::SizedRange<Range>
+			&& std::same_as<Ranges::RangeValueType<Range>, CharType>
+			&& !std::is_convertible_v<Range, const CharType*>
+			&& !requires(std::remove_cvref_t<Range>& Rng)
+		{
+			Rng.operator BasicStringView<CharType>();
+		})
+			constexpr /* implicit */ BasicStringView(Range&& rng) noexcept(noexcept(Ranges::Data(rng)) && noexcept(Ranges::Size(rng)))
+			: m_str(Ranges::Data(rng)), m_len(static_cast<usize>(Ranges::Size(rng))) {
+		}
+
+		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
+		&& Ranges::ContiguousRange<Range>
+			&& Ranges::SizedRange<Range>
+			&& std::same_as<Ranges::RangeValueType<Range>, CharType>
+			&& !std::is_convertible_v<Range, const CharType*>
+			&& !requires(std::remove_cvref_t<Range>& Rng)
+		{
+			Rng.operator BasicStringView<CharType>();
+		})
+			constexpr BasicStringView& operator=(Range&& rng) noexcept(noexcept(Ranges::Data(rng)) && noexcept(Ranges::Size(rng)))
+		{
+			m_str = Ranges::Data(rng);
+			m_len = static_cast<usize>(Ranges::Size(rng));
+		}
 
 		usize Capacity() const noexcept { return m_len; }
 		usize Size() const noexcept { return m_len; }
@@ -224,7 +267,7 @@ namespace PenFramework::PenEngine
 		usize FindLastNotOf(const std::basic_string<CharType>& str, usize off = NPos) const noexcept;
 		usize FindLastNotOf(std::basic_string_view<CharType> str, usize off = NPos) const noexcept;
 	private:
-		CharType* m_str = nullptr;
+		const CharType* m_str = nullptr;
 		usize m_len = 0;
 	};
 
@@ -458,7 +501,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	usize BasicStringView<CharType>::FindFirstOf(CharType ch, usize off) const noexcept
 	{
-		return ChFindFirstOf(ch, off);
+		return ChFindFirstOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
@@ -494,7 +537,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	usize BasicStringView<CharType>::FindLastOf(CharType ch, usize off) const noexcept
 	{
-		return ChFindLastOf(ch, off);
+		return ChFindLastOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
@@ -530,7 +573,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	usize BasicStringView<CharType>::FindFirstNotOf(CharType ch, usize off) const noexcept
 	{
-		return ChFindFirstNotOf(ch, off);
+		return ChFindFirstNotOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
@@ -566,7 +609,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	usize BasicStringView<CharType>::FindLastNotOf(CharType ch, usize off) const noexcept
 	{
-		return ChFindLastNotOf(ch, off);
+		return ChFindLastNotOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
@@ -603,11 +646,20 @@ namespace PenFramework::PenEngine
 	using U32View = BasicStringView<ch32>;
 }
 
+template <>
+struct std::formatter<PenFramework::PenEngine::StringView> : std::formatter<std::string_view>
+{
+	static auto format(PenFramework::PenEngine::StringView str, std::format_context& ctx)
+	{
+		return std::format_to(ctx.out(), "{}", str.Data());
+	}
+};
+
 template <typename CharType>
 struct std::hash<PenFramework::PenEngine::BasicStringView<CharType>>
 {
-	static PenFramework::PenEngine::usize operator()(PenFramework::PenEngine::BasicStringView<CharType>&& str) noexcept
+	static PenFramework::PenEngine::usize operator()(PenFramework::PenEngine::BasicStringView<CharType> str) noexcept
 	{
-		return std::hash<std::string_view>(std::string_view(str.Data(), str.Size()));
+		return std::hash<std::string_view>::operator()(std::string_view(str.Data(), str.Size()));
 	}
 };

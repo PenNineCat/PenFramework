@@ -105,6 +105,9 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,6 +123,9 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,12 +133,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.cpp" />
+    <ClCompile Include="Code\UnitTest\UnitTestFramework.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine\Common\Iterator.hpp" />
     <ClInclude Include="Code\Engine\Common\Type.hpp" />
     <ClInclude Include="Code\Engine\DebugTools\Verify.hpp" />
+    <ClInclude Include="Code\Engine\Math\Color.hpp" />
+    <ClInclude Include="Code\Engine\Math\MathFunction.hpp" />
+    <ClInclude Include="Code\Engine\Math\Vec2.hpp" />
+    <ClInclude Include="Code\Engine\Math\Vec3.hpp" />
+    <ClInclude Include="Code\Engine\Math\Vec3x3.hpp" />
+    <ClInclude Include="Code\Engine\Math\Vec4.hpp" />
+    <ClInclude Include="Code\Engine\Math\Vec4x4.hpp" />
     <ClInclude Include="Code\Engine\String\Fromat.hpp" />
     <ClInclude Include="Code\Engine\String\String.hpp" />
     <ClInclude Include="Code\Engine\String\StringMap.hpp" />
@@ -146,8 +161,17 @@
     <ClInclude Include="Code\Engine\Utils\Flag.hpp" />
     <ClInclude Include="Code\Engine\Utils\Logger.hpp" />
     <ClInclude Include="Code\Engine\Utils\Preprocessor.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Ranges.hpp" />
     <ClInclude Include="Code\Engine\Utils\Singleton.hpp" />
-    <ClInclude Include="Code\Engine\Utils\TransparentHash.hpp" />
+    <ClInclude Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.h" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_Format.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_String.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_String_NotVectorizedFindXXX.hpp" />
+    <ClInclude Include="Code\UnitTest\UnitTestFramework.h" />
+    <ClInclude Include="Code\UnitTest\UnitTestInterface.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeSnippet\FileHeader.snippet" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

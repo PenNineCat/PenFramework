@@ -31,13 +31,13 @@ void PenFramework::UnitTest::Core::UnitTestManager::Init(std::unique_ptr<IUnitCo
 	std::println("扫描完成！共有{}个测试文件{}个测试项目", fileCount, count);
 }
 
-void PenFramework::UnitTest::Core::UnitTestManager::Register(std::string_view filename, std::string_view testName, InvokerPtr ptr)
+void PenFramework::UnitTest::Core::UnitTestManager::Register(PenEngine::StringView filename, PenEngine::StringView testName, InvokerPtr ptr)
 {
 	auto it = m_registerUnitTest.find(filename);
 	if (it == m_registerUnitTest.end())
-		it = m_registerUnitTest.emplace(std::string(filename), std::vector<UnitTestNode>()).first;
+		it = m_registerUnitTest.emplace(PenEngine::String(filename), std::vector<UnitTestNode>()).first;
 
-	it->second.emplace_back(std::string(testName), ptr);
+	it->second.emplace_back(PenEngine::String(testName), ptr);
 }
 
 void PenFramework::UnitTest::Core::UnitTestManager::StartUnitTest(PenEngine::u8 parallelTestNum)
@@ -45,8 +45,7 @@ void PenFramework::UnitTest::Core::UnitTestManager::StartUnitTest(PenEngine::u8 
 	if (m_context == nullptr)
 		return;
 
-	m_context->UTestStart(std::chrono::steady_clock::now(),std::chrono::system_clock::now());
-
+	m_context->UTestStart(std::chrono::steady_clock::now(), std::chrono::system_clock::now());
 	if (parallelTestNum == 1)
 	{
 		for (auto& [filename, vec] : m_registerUnitTest)

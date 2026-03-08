@@ -18,4 +18,19 @@ namespace PenFramework::PenEngine
 
 	template <typename From, typename To>
 	concept IsStaticCastable = requires(From && t) { static_cast<To>(std::forward<From>(t)); };
+
+	template <typename T>
+	concept IsPointer = std::is_pointer_v<T>;
+
+	template <typename T>
+	concept IsPointerToObject = IsPointer<T> || std::is_object_v<std::remove_pointer_t<T>>;
+
+	template <typename T>
+	concept IsReferenceable = !std::is_void_v<std::add_lvalue_reference_t<T>>;
+
+	template <typename T>
+	concept IsDereferenceable = requires(T & t)
+	{
+		{ *t } -> IsReferenceable;
+	};
 }

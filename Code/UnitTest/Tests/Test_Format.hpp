@@ -13,6 +13,8 @@
 #include "../../Engine/String/Fromat.hpp"
 #include "../UnitTestFramework.h"
 
+#include <numbers>
+
 namespace PenFramework::UnitTest
 {
     UNIT_TEST_AREA_BEGIN(TestFormat)

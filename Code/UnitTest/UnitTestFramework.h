@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "../Engine/String/String.hpp"
 #include "../Engine/String/StringUnorderedMap.hpp"
 #include "../Engine/Utils/Preprocessor.hpp"
 #include "../Engine/Utils/Singleton.hpp"
@@ -48,8 +49,10 @@ struct TestName##_AutoRunner EXPAND_INHERIT_CLASS(__VA_ARGS__) \
 inline PenFramework::UnitTest::Core::UnitTestAutoRegister UNIQUE_VAR_NAME(g_##TestName##_AutoRegister)(__FILE__,#TestName,&TestName##_AutoRunner::Invoker); \
 inline void TestName##_AutoRunner::TestMethod(PenFramework::UnitTest::Core::IUnitTestHandle* handle)
 
-#ifndef UNIT_TEST_BENCHMARK
+
 #define UNIT_TEST_AREA_END(TestName) inline PenFramework::PenEngine::usize TestName##_AutoRunner::g_checkpointCount =  __COUNTER__ - TestName##_AutoRunner::g_checkpointCountMacroStart - 1;
+
+#ifndef UNIT_TEST_BENCHMARK
 #define UNIT_TEST_CONDITION(message,condition) \
 	handle->Condition(message,condition,__LINE__);
 #define UNIT_TEST_MESSAGE(message) \
@@ -103,12 +106,12 @@ namespace PenFramework::UnitTest::Core
 	class UnitTestFailedResult
 	{
 	public:
-		UnitTestFailedResult(std::string_view result, PenEngine::u32 line) : m_result(result), m_line(line) {}
+		UnitTestFailedResult(PenEngine::StringView result, PenEngine::u32 line) : m_result(result), m_line(line) {}
 
-		std::string_view Result() const noexcept { return m_result; }
+		PenEngine::StringView Result() const noexcept { return m_result; }
 		PenEngine::u32 Line() const noexcept { return m_line; }
 	private:
-		std::string m_result;
+		PenEngine::StringView m_result;
 		PenEngine::u32 m_line;
 	};
 
@@ -117,12 +120,12 @@ namespace PenFramework::UnitTest::Core
 	public:
 		virtual ~UnitTestManager() noexcept override = default;
 		void Init(std::unique_ptr<IUnitContext> context);
-		void Register(std::string_view filename, std::string_view testName, InvokerPtr ptr);
+		void Register(PenEngine::StringView filename, PenEngine::StringView testName, InvokerPtr ptr);
 		void StartUnitTest(PenEngine::u8 parallelTestNum = 1);
 	private:
 		struct UnitTestNode
 		{
-			std::string TestName;
+			PenEngine::String TestName;
 			InvokerPtr InvokerPtr;
 		};
 
@@ -133,9 +136,9 @@ namespace PenFramework::UnitTest::Core
 	class UnitTestAutoRegister
 	{
 	public:
-		UnitTestAutoRegister(std::string_view filename,std::string_view testName,InvokerPtr ptr) 
+		UnitTestAutoRegister(PenEngine::StringView filename, PenEngine::StringView testName, InvokerPtr ptr)
 		{
-			UnitTestManager::GetInstance().Register(filename,testName,ptr);
+			UnitTestManager::GetInstance().Register(filename, testName, ptr);
 		}
 	};
 }

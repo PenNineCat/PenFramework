@@ -10,22 +10,26 @@
 
 #pragma once
 
-#include "../Utils/TransparentHash.hpp"
 #include "String.hpp"
 
 namespace PenFramework::PenEngine
 {
 	template <typename CharType>
-	using StringClassTransparentHash = TransparentHash<BasicString<CharType>, BasicStringView<CharType>, std::basic_string<CharType>, std::basic_string_view<CharType>>;
-
-	template <typename CharType>
-	struct StringTransparentHash : StringClassTransparentHash<CharType>
+	struct StringTransparentHash
 	{
-		using StringClassTransparentHash::operator();
+		static usize operator()(BasicStringView<CharType> str) noexcept
+		{
+			return std::hash<BasicStringView<CharType>>::operator()(str);
+		}
+
+		static usize operator()(const BasicString<CharType>& str) noexcept
+		{
+			return std::hash<BasicString<CharType>>::operator()(str);
+		}
 
 		static usize operator()(const CharType* ptr) noexcept
 		{
-			return std::hash<BasicStringView<CharType>>(BasicStringView<CharType>(ptr));
+			return std::hash<BasicStringView<CharType>>(BasicStringView<CharType>::operator()(ptr));
 		}
 	};
 }

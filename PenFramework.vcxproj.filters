@@ -22,13 +22,28 @@
     <Filter Include="Code\Engine\Utils">
       <UniqueIdentifier>{1eb064f6-1b60-44aa-bb19-def50183fda2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Engine\Common\String">
+    <Filter Include="Code\UnitTest\BasicOutputInterface">
+      <UniqueIdentifier>{fe439f00-3f17-4909-862d-107ec954e47d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\UnitTest\Tests">
+      <UniqueIdentifier>{55f45d20-c472-4b50-ac60-20251a189b3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\String">
       <UniqueIdentifier>{85cf3591-23af-4c75-8294-709776a48228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\Math">
+      <UniqueIdentifier>{e79e1ed7-4a10-4443-9367-6fb4f36bc425}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\UnitTest\UnitTestFramework.cpp">
+      <Filter>Code\UnitTest</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.cpp">
+      <Filter>Code\UnitTest\BasicOutputInterface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +62,6 @@
     <ClInclude Include="Code\Engine\Utils\Singleton.hpp">
       <Filter>Code\Engine\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\Utils\TransparentHash.hpp">
-      <Filter>Code\Engine\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Engine\Utils\Concept.hpp">
       <Filter>Code\Engine\Utils</Filter>
     </ClInclude>
@@ -60,31 +72,78 @@
       <Filter>Code\Engine\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\String.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringMap.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringSet.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringTransparentHash.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringUnorderedMap.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringUnorderedSet.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StringView.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\StrSearchUtils.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\String\Fromat.hpp">
-      <Filter>Code\Engine\Common\String</Filter>
+      <Filter>Code\Engine\String</Filter>
     </ClInclude>
+    <ClInclude Include="Code\UnitTest\UnitTestFramework.h">
+      <Filter>Code\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\UnitTestInterface.hpp">
+      <Filter>Code\UnitTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.h">
+      <Filter>Code\UnitTest\BasicOutputInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_String.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_String_NotVectorizedFindXXX.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_Format.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Ranges.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Vec4x4.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Vec4.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Vec3x3.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Vec3.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Vec2.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\MathFunction.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Math\Color.hpp">
+      <Filter>Code\Engine\Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeSnippet\FileHeader.snippet">
+      <Filter>CodeSnippet</Filter>
+    </None>
   </ItemGroup>
 </Project>

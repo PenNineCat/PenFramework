@@ -15,10 +15,11 @@
 
 namespace PenFramework::UnitTest
 {
-	using namespace PenEngine;
 	// 测试 String 字符串类（SSO + 堆分配）
 	UNIT_TEST_AREA_BEGIN(TestString)
 	{
+		using namespace PenEngine;
+
 		UNIT_TEST_MESSAGE("测试 String 字符串类（含 SSO 与堆分配）")
 
 		// --- 构造函数 ---

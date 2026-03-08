@@ -16,11 +16,13 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 PenFramework::UnitTest::SpdlogSTSharedHandle::SpdlogSTSharedHandle(const std::shared_ptr<spdlog::logger>& logger) noexcept : m_logger(logger)
-{}
+{
+}
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Exception(std::string_view message, const std::exception& exception,
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Exception(PenEngine::StringView message, const std::exception& exception,
 															 const std::stacktrace& stacktrace)
-{}
+{
+}
 
 void PenFramework::UnitTest::SpdlogSTSharedHandle::UnhandledException(const std::exception& exception)
 {
@@ -28,10 +30,11 @@ void PenFramework::UnitTest::SpdlogSTSharedHandle::UnhandledException(const std:
 	m_successful = false;
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Failed(std::string_view message, PenEngine::u32 line)
-{}
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Failed(PenEngine::StringView message, PenEngine::u32 line)
+{
+}
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::TestStart(std::string_view testName,
+void PenFramework::UnitTest::SpdlogSTSharedHandle::TestStart(PenEngine::StringView testName,
 															 PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
 															 std::chrono::system_clock::time_point scPoint)
 {
@@ -61,23 +64,23 @@ PenFramework::UnitTest::SpdlogSTSharedContext::SpdlogSTSharedContext()
 	m_handle = SpdlogSTSharedHandle(m_logger);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Message(std::string_view message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Message(PenEngine::StringView message, PenEngine::u32 line)
 {
 	m_logger->info("测试消息——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Checkpoint(std::string_view message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::u32 line)
 {
 	m_reachedCheckpointCount++;
 	m_logger->info("测试检查点——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Condition(std::string_view message, bool condition, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line)
 {
 	m_logger->info("测试条件检查——行数：{} 消息：{} 条件是否达成：{}", line, message, condition);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::TerminalCondition(std::string_view message, bool condition,
+void PenFramework::UnitTest::SpdlogSTSharedHandle::TerminalCondition(PenEngine::StringView message, bool condition,
 																	 PenEngine::u32 line)
 {
 	m_logger->info("测试关键条件检查——行数：{}消息：{} 条件是否达成：{}", line, message, condition);
@@ -94,12 +97,14 @@ void PenFramework::UnitTest::SpdlogSTSharedContext::UTestEnd(std::chrono::steady
 	m_logger->info("单元测试结束于：{:%Y-%m-%d %H:%M:%S}", scPoint);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedContext::FileStart(std::string_view filename,
+void PenFramework::UnitTest::SpdlogSTSharedContext::FileStart(PenEngine::StringView filename,
 															  std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint)
-{}
+{
+}
 
 void PenFramework::UnitTest::SpdlogSTSharedContext::FileFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint)
-{}
+{
+}
 
 PenFramework::UnitTest::Core::IUnitTestHandle* PenFramework::UnitTest::SpdlogSTSharedContext::AllocateTestHandle()
 {
@@ -116,11 +121,13 @@ void PenFramework::UnitTest::SpdlogSTSharedContext::FreeTestHandle(Core::IUnitTe
 }
 
 PenFramework::UnitTest::SpdlogMTSharedHandle::SpdlogMTSharedHandle(const std::shared_ptr<spdlog::logger>& logger) noexcept : m_logger(logger)
-{}
+{
+}
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Exception(std::string_view message, const std::exception& exception,
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Exception(PenEngine::StringView message, const std::exception& exception,
 															 const std::stacktrace& stacktrace)
-{}
+{
+}
 
 void PenFramework::UnitTest::SpdlogMTSharedHandle::UnhandledException(const std::exception& exception)
 {
@@ -128,14 +135,15 @@ void PenFramework::UnitTest::SpdlogMTSharedHandle::UnhandledException(const std:
 	m_successful = false;
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Failed(std::string_view message, PenEngine::u32 line)
-{}
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Failed(PenEngine::StringView message, PenEngine::u32 line)
+{
+}
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::TestStart(std::string_view testName,
+void PenFramework::UnitTest::SpdlogMTSharedHandle::TestStart(PenEngine::StringView testName,
 															 PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
 															 std::chrono::system_clock::time_point scPoint)
 {
-	m_testName = testName;
+	m_testName = PenEngine::String(testName);
 	m_startTime = stPoint;
 	m_allCheckpointCount = checkpointCount;
 	m_reachedCheckpointCount = 0;
@@ -161,23 +169,23 @@ PenFramework::UnitTest::SpdlogMTSharedContext::SpdlogMTSharedContext()
 	m_handle = SpdlogMTSharedHandle(m_logger);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Message(std::string_view message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Message(PenEngine::StringView message, PenEngine::u32 line)
 {
 	m_logger->info("测试消息——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Checkpoint(std::string_view message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::u32 line)
 {
 	m_reachedCheckpointCount++;
 	m_logger->info("测试检查点——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Condition(std::string_view message, bool condition, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line)
 {
 	m_logger->info("测试条件检查——行数：{} 消息：{} 条件是否达成：{}", line, message, condition);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::TerminalCondition(std::string_view message, bool condition,
+void PenFramework::UnitTest::SpdlogMTSharedHandle::TerminalCondition(PenEngine::StringView message, bool condition,
 																	 PenEngine::u32 line)
 {
 	m_logger->info("测试关键条件检查——行数：{}消息：{} 条件是否达成：{}", line, message, condition);
@@ -194,12 +202,14 @@ void PenFramework::UnitTest::SpdlogMTSharedContext::UTestEnd(std::chrono::steady
 	m_logger->info("单元测试结束于：{:%Y-%m-%d %H:%M:%S}", scPoint);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedContext::FileStart(std::string_view filename,
+void PenFramework::UnitTest::SpdlogMTSharedContext::FileStart(PenEngine::StringView filename,
 															  std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint)
-{}
+{
+}
 
 void PenFramework::UnitTest::SpdlogMTSharedContext::FileFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint)
-{}
+{
+}
 
 PenFramework::UnitTest::Core::IUnitTestHandle* PenFramework::UnitTest::SpdlogMTSharedContext::AllocateTestHandle()
 {

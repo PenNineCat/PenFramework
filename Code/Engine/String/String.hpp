@@ -14,6 +14,7 @@
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/Exception.hpp"
+#include "../Math/MathFunction.hpp"
 #include "../Memory/Memory.hpp"
 #include "../Utils/Concept.hpp"
 #include "StringView.hpp"
@@ -38,7 +39,7 @@ namespace PenFramework::PenEngine
 			: sizeof(CharType) <= 4 ? 3
 			: sizeof(CharType) <= 8 ? 1
 			: 0;
-		static constexpr usize MaxStorageCapacity = PTRDIFF_MAX;
+		static constexpr usize MaxStorageCapacity = Pow(2ull, sizeof(usize) * BitsPerBytes - 1) - 1;
 		static constexpr usize NPos = static_cast<usize>(-1);
 
 		using CharTraits = std::char_traits<CharType>;
@@ -57,7 +58,7 @@ namespace PenFramework::PenEngine
 		class Iterator : public StringConstIterator<CharType>
 		{
 		public:
-			using iterator_category = std::random_access_iterator_tag;
+			using iterator_category = std::contiguous_iterator_tag;
 			using value_type = value_type;
 			using difference_type = isize;
 			using pointer = value_type*;
@@ -81,21 +82,14 @@ namespace PenFramework::PenEngine
 			friend Iterator operator+(difference_type n, Iterator it) noexcept { it += n; return it; }
 			friend Iterator operator-(Iterator it, difference_type n) noexcept { it -= n; return it; }
 
-			friend difference_type operator-(const Iterator& lhs, const Iterator& rhs) noexcept {
-				return lhs.m_ptr - rhs.m_ptr;
-			}
-
-			friend difference_type operator-(const Iterator& lhs, const StringConstIterator<CharType>& rhs) noexcept {
-				return lhs.m_ptr - rhs.m_ptr;
+			difference_type operator-(const Iterator& it) const noexcept {
+				return static_cast<difference_type>(this->m_ptr - it.m_ptr);
 			}
 
 			reference operator[](difference_type n) const noexcept { return const_cast<reference>(this->m_ptr[n]); }
 
 			bool operator==(const Iterator&) const noexcept = default;
-			bool operator==(const StringConstIterator<CharType>& other) const noexcept { return this->m_ptr == other.m_ptr; }
-
 			auto operator<=>(const Iterator&) const noexcept = default;
-			auto operator<=>(const StringConstIterator<CharType>& other) const noexcept { return this->m_ptr <=> other.m_ptr; }
 		};
 
 		using ConstIterator = StringConstIterator<CharType>;
@@ -163,7 +157,7 @@ namespace PenFramework::PenEngine
 		void Resize(usize size, CharType ch = CharType());
 		void ShrinkToFit();
 
-		const CharType* Data() noexcept;
+		CharType* Data() noexcept;
 		const CharType* Data() const noexcept;
 
 		BasicString Substr(usize off = 0, usize len = NPos) const;
@@ -315,6 +309,7 @@ namespace PenFramework::PenEngine
 		static usize CalculateAllocateCapacity(usize requestCapacity, usize currentCapacity, usize maxCapacity) noexcept;
 
 		void ReallocateHeapBuffer(usize capacity);
+		void ReallocateHeapBufferWithCapacity(usize capacity);
 		void DeallocateBuffer() noexcept;
 
 		void InitSSOBuffer() noexcept;
@@ -492,7 +487,7 @@ namespace PenFramework::PenEngine
 	{
 		DeallocateBuffer();
 		usize len = str.size();
-		cch* ptr = str.data();
+		const CharType* ptr = str.data();
 		if (len <= LocalStorageCapacity)
 		{
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -511,7 +506,7 @@ namespace PenFramework::PenEngine
 	{
 		DeallocateBuffer();
 		usize len = str.size();
-		cch* ptr = str.data();
+		const CharType* ptr = str.data();
 		if (len <= LocalStorageCapacity)
 		{
 			memcpy(m_buffer.Stack.Buffer, ptr, len);
@@ -748,12 +743,12 @@ namespace PenFramework::PenEngine
 			if (m_buffer.Heap.Size <= LocalStorageCapacity)
 				MoveToStack();
 			else if (m_buffer.Heap.Size < m_buffer.Heap.Capacity)
-				ReallocateHeapBuffer(m_buffer.Heap.Size);
+				ReallocateHeapBufferWithCapacity(m_buffer.Heap.Size);
 		}
 	}
 
 	template <typename CharType>
-	const CharType* BasicString<CharType>::Data() noexcept
+	CharType* BasicString<CharType>::Data() noexcept
 	{
 		return Buffer();
 	}
@@ -780,13 +775,13 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	BasicString<CharType> BasicString<CharType>::Right(usize len) const
 	{
-		return Substr(0, len);
+		return Substr(Size() - len, len);
 	}
 
 	template <typename CharType>
 	BasicString<CharType> BasicString<CharType>::Left(usize len) const
 	{
-		return Substr(Size() - len, len);
+		return Substr(0, len);;
 	}
 
 	template <typename CharType>
@@ -818,7 +813,7 @@ namespace PenFramework::PenEngine
 
 		ReserveExtra(len);
 		usize size = Size();
-		cch* buffer = Buffer();
+		CharType* buffer = Buffer();
 		memcpy(buffer + size, str, len);
 
 		ResetSizeAndEos(size + len);
@@ -832,7 +827,7 @@ namespace PenFramework::PenEngine
 
 		ReserveExtra(count);
 
-		cch* buffer = Buffer();
+		CharType* buffer = Buffer();
 		usize size = Size();
 		for (usize i = size; i < size + count; ++i)
 			buffer[i] = ch;
@@ -903,7 +898,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	bool BasicString<CharType>::CanConvertToUnicode() const noexcept
 	{
-		CharType* str = Data();
+		CharType* str = const_cast<CharType*>(Data());
 		CharType* end = str + Size();
 
 		while (str != end) {
@@ -1567,7 +1562,12 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	void BasicString<CharType>::ReallocateHeapBuffer(usize capacity)
 	{
-		capacity = CalculateAllocateCapacity(capacity, m_buffer.Heap.Capacity, MaxStorageCapacity);
+		ReallocateHeapBufferWithCapacity(CalculateAllocateCapacity(capacity, m_buffer.Heap.Capacity, MaxStorageCapacity));
+	}
+
+	template<typename CharType>
+	inline void BasicString<CharType>::ReallocateHeapBufferWithCapacity(usize capacity)
+	{
 		CharType* newBuffer = Memory::Allocate<CharType>(capacity + 1);
 
 		if (m_buffer.Heap.Size > 0)
@@ -1664,11 +1664,20 @@ namespace PenFramework::PenEngine
 	}
 }
 
+template <>
+struct std::formatter<PenFramework::PenEngine::String> : std::formatter<std::string>
+{
+	static auto format(const PenFramework::PenEngine::String& str, std::format_context& ctx)
+	{
+		return std::format_to(ctx.out(), "{}", str.Data());
+	}
+};
+
 template <typename CharType>
 struct std::hash<PenFramework::PenEngine::BasicString<CharType>>
 {
-	static PenFramework::PenEngine::usize operator()(PenFramework::PenEngine::BasicString<CharType>&& str) noexcept
+	static PenFramework::PenEngine::usize operator()(const PenFramework::PenEngine::BasicString<CharType>& str) noexcept
 	{
-		return std::hash<std::string_view>(std::string_view(str.Data(), str.Size()));
+		return std::hash<std::string_view>::operator()(std::string_view(str.Data(), str.Size()));
 	}
 };

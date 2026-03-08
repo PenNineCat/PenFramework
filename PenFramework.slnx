@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="PenFramework.vcxproj" />
+  <Project Path="PenFramework.vcxproj" Id="2f6fb532-e400-4761-855e-e1f4a853a30a" />
 </Solution>

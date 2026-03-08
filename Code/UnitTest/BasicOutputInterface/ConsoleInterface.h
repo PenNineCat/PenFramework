@@ -11,7 +11,7 @@
 #pragma once
 
 #include <condition_variable>
-
+#include "../../Engine/String/String.hpp"
 #include "../UnitTestInterface.hpp"
 
 namespace spdlog
@@ -34,19 +34,19 @@ namespace PenFramework::UnitTest
 
 		virtual ~SpdlogSTSharedHandle() noexcept override = default;
 
-		virtual void Exception(std::string_view message, const std::exception& exception, const std::stacktrace& stacktrace) override;
-		virtual void Message(std::string_view message, PenEngine::u32 line) override;
-		virtual void Checkpoint(std::string_view message, PenEngine::u32 line) override;
-		virtual void Condition(std::string_view message, bool condition, PenEngine::u32 line) override;
-		virtual void TerminalCondition(std::string_view message, bool condition, PenEngine::u32 line) override;
+		virtual void Exception(PenEngine::StringView message, const std::exception& exception, const std::stacktrace& stacktrace) override;
+		virtual void Message(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void Checkpoint(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
+		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
 		virtual void UnhandledException(const std::exception& exception) override;
-		virtual void Failed(std::string_view message, PenEngine::u32 line) override;
-		virtual void TestStart(std::string_view testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void Failed(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void TestStart(PenEngine::StringView testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void TestFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 	private:
 		std::shared_ptr<spdlog::logger> m_logger;
 
-		std::string m_testName;
+		PenEngine::String m_testName;
 		std::chrono::steady_clock::time_point m_startTime;
 		PenEngine::usize m_allCheckpointCount = 0;
 		PenEngine::usize m_reachedCheckpointCount = 0;
@@ -61,7 +61,7 @@ namespace PenFramework::UnitTest
 
 		virtual void UTestStart(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void UTestEnd(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
-		virtual void FileStart(std::string_view filename, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void FileStart(PenEngine::StringView filename, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void FileFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		[[nodiscard]] virtual Core::IUnitTestHandle* AllocateTestHandle() override;
 		virtual void FreeTestHandle(Core::IUnitTestHandle* handle) override;
@@ -87,19 +87,19 @@ namespace PenFramework::UnitTest
 
 		virtual ~SpdlogMTSharedHandle() noexcept override = default;
 
-		virtual void Exception(std::string_view message, const std::exception& exception, const std::stacktrace& stacktrace) override;
-		virtual void Message(std::string_view message, PenEngine::u32 line) override;
-		virtual void Checkpoint(std::string_view message, PenEngine::u32 line) override;
-		virtual void Condition(std::string_view message, bool condition, PenEngine::u32 line) override;
-		virtual void TerminalCondition(std::string_view message, bool condition, PenEngine::u32 line) override;
+		virtual void Exception(PenEngine::StringView message, const std::exception& exception, const std::stacktrace& stacktrace) override;
+		virtual void Message(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void Checkpoint(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
+		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
 		virtual void UnhandledException(const std::exception& exception) override;
-		virtual void Failed(std::string_view message, PenEngine::u32 line) override;
-		virtual void TestStart(std::string_view testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void Failed(PenEngine::StringView message, PenEngine::u32 line) override;
+		virtual void TestStart(PenEngine::StringView testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void TestFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 	private:
 		std::shared_ptr<spdlog::logger> m_logger;
 
-		std::string m_testName;
+		PenEngine::String m_testName;
 		std::chrono::steady_clock::time_point m_startTime;
 		PenEngine::usize m_allCheckpointCount = 0;
 		PenEngine::usize m_reachedCheckpointCount = 0;
@@ -114,7 +114,7 @@ namespace PenFramework::UnitTest
 
 		virtual void UTestStart(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void UTestEnd(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
-		virtual void FileStart(std::string_view filename, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void FileStart(PenEngine::StringView filename, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void FileFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		[[nodiscard]] virtual Core::IUnitTestHandle* AllocateTestHandle() override;
 		virtual void FreeTestHandle(Core::IUnitTestHandle* handle) override;
