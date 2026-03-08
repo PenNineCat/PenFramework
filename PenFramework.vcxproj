@@ -129,6 +129,26 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Engine\Common\Iterator.hpp" />
+    <ClInclude Include="Code\Engine\Common\Type.hpp" />
+    <ClInclude Include="Code\Engine\DebugTools\Verify.hpp" />
+    <ClInclude Include="Code\Engine\String\Fromat.hpp" />
+    <ClInclude Include="Code\Engine\String\String.hpp" />
+    <ClInclude Include="Code\Engine\String\StringMap.hpp" />
+    <ClInclude Include="Code\Engine\String\StringSet.hpp" />
+    <ClInclude Include="Code\Engine\String\StringTransparentHash.hpp" />
+    <ClInclude Include="Code\Engine\String\StringUnorderedMap.hpp" />
+    <ClInclude Include="Code\Engine\String\StringUnorderedSet.hpp" />
+    <ClInclude Include="Code\Engine\String\StringView.hpp" />
+    <ClInclude Include="Code\Engine\String\StrSearchUtils.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Concept.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Flag.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Logger.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Preprocessor.hpp" />
+    <ClInclude Include="Code\Engine\Utils\Singleton.hpp" />
+    <ClInclude Include="Code\Engine\Utils\TransparentHash.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

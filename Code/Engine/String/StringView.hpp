@@ -1,0 +1,613 @@
+// File /Engine/String/StringView.hpp
+// This file is a part of PenFramework Project
+// https://github.com/PenNineCat/PenFramework
+// 
+// Copyright (C) 2025 - Present PenNineCat. All rights reserved
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+#pragma once
+
+#include "../Common/Iterator.hpp"
+#include "../Common/Type.hpp"
+#include "../DebugTools/Verify.hpp"
+#include "../Exception/InvalidArgument.hpp"
+#include "StrSearchUtils.hpp"
+#include <string>
+
+namespace PenFramework::PenEngine
+{
+	template <typename T>
+	concept CurrentStringSupportCharType = IsOneOf<T, cch, ch32>;
+
+	template <typename CharType>
+	class StringConstIterator
+	{
+	public:
+		using iterator_category = std::random_access_iterator_tag;
+
+		using value_type = CharType;
+		using difference_type = isize;
+
+		using const_pointer = const value_type*;
+		using pointer = const_pointer;
+
+		using const_reference = const value_type&;
+		using reference = const_reference;
+
+		StringConstIterator() noexcept = default;
+		explicit StringConstIterator(pointer ptr) noexcept : m_ptr(ptr) {}
+
+		reference operator*() const noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				return *m_ptr;
+		}
+		pointer operator->() const noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				return m_ptr;
+		}
+
+		StringConstIterator& operator++() noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				++m_ptr;
+			return *this;
+		}
+
+		StringConstIterator operator++(int) noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				StringConstIterator tmp = *this;
+			++(*this);
+			return tmp;
+		}
+
+		StringConstIterator& operator--() noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				--m_ptr;
+			return *this;
+		}
+		StringConstIterator operator--(int) noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				StringConstIterator tmp = *this;
+			--(*this);
+			return tmp;
+		}
+
+		friend StringConstIterator operator+(StringConstIterator it, difference_type n) noexcept
+		{
+			it += n; return it;
+		}
+		friend StringConstIterator operator+(difference_type n, StringConstIterator it) noexcept
+		{
+			it += n; return it;
+		}
+		friend StringConstIterator operator-(StringConstIterator it, difference_type n) noexcept
+		{
+			it -= n; return it;
+		}
+
+		friend difference_type operator-(StringConstIterator lhs, StringConstIterator rhs) noexcept
+		{
+			DEBUG_VERIFY_REPORT(lhs.m_ptr && rhs.m_ptr, "cannot dereference value-initialized string iterator")
+				return lhs.m_ptr - rhs.m_ptr;
+		}
+
+		reference operator[](difference_type n) const noexcept
+		{
+			DEBUG_VERIFY_REPORT(m_ptr, "cannot dereference value-initialized string iterator")
+				return m_ptr[n];
+		}
+
+		bool operator==(const StringConstIterator& other) const noexcept = default;
+		auto operator<=>(const StringConstIterator& other) const noexcept = default;
+
+	protected:
+		pointer m_ptr;
+	};
+
+	template <typename CharType>
+	class BasicStringView
+	{
+	public:
+		static_assert(CurrentStringSupportCharType<CharType>, "unsupported char type in current version");
+		constexpr static usize NPos = static_cast<usize>(-1);
+
+		using value_type = CharType;
+		using pointer = value_type*;
+		using const_pointer = const pointer;
+		using reference = const value_type&;
+
+		using size_type = usize;
+		using difference_type = isize;
+
+		using CharTraits = std::char_traits<CharType>;
+
+		using ReverseIterator = std::reverse_iterator<StringConstIterator<CharType>>;
+		using ConstReverseIterator = std::reverse_iterator<StringConstIterator<CharType>>;
+
+		using iterator = StringConstIterator<CharType>;
+		using const_iterator = StringConstIterator<CharType>;
+		using reverse_iterator = ReverseIterator;
+		using const_reverse_iterator = ConstReverseIterator;
+
+		using ConstIterator = const_iterator;
+
+		BasicStringView() noexcept = default;
+		explicit BasicStringView(CharType* str) noexcept : BasicStringView(str, std::char_traits<CharType>::length(str)) {}
+		BasicStringView(CharType* str, usize len) noexcept : m_str(str), m_len(len) {}
+
+		explicit BasicStringView(std::basic_string_view<CharType> str) noexcept : BasicStringView(str.data(), str.size()) {}
+		explicit BasicStringView(const std::basic_string<CharType>& str) noexcept : BasicStringView(str.data(), str.size()) {}
+
+		usize Capacity() const noexcept { return m_len; }
+		usize Size() const noexcept { return m_len; }
+
+		const CharType* Data() noexcept;
+		const CharType* Data() const noexcept;
+
+		BasicStringView Substr(usize off = 0, usize len = NPos) const;
+		BasicStringView Right(usize len) const;
+		BasicStringView Left(usize len) const;
+
+		bool Contain(CharType ch, usize off = 0) const noexcept;
+		bool Contain(BasicStringView str, usize off = 0) const noexcept;
+		bool Contain(const CharType* str, usize off = 0) const noexcept;
+		bool Contain(const CharType* str, usize off, usize len) const noexcept;
+		bool Contain(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
+		bool Contain(std::basic_string_view<CharType>& str, usize off = 0) const noexcept;
+
+		ConstIterator begin() const noexcept;
+		ConstIterator end() const noexcept;
+		ConstIterator cbegin() const noexcept;
+		ConstIterator cend() const noexcept;
+
+		ConstReverseIterator rbegin() const noexcept;
+		ConstReverseIterator rend() const noexcept;
+		ConstReverseIterator crbegin() const noexcept;
+		ConstReverseIterator crend() const noexcept;
+
+		ConstIterator Begin() const noexcept;
+		ConstIterator End() const noexcept;
+		ConstIterator CBegin() const noexcept;
+		ConstIterator CEnd() const noexcept;
+
+		ConstReverseIterator RBegin() const noexcept;
+		ConstReverseIterator REnd() const noexcept;
+		ConstReverseIterator CRBegin() const noexcept;
+		ConstReverseIterator CREnd() const noexcept;
+
+		CharType Front() const noexcept;
+		CharType Back() const noexcept;
+
+		const CharType& operator[](usize size) const noexcept;
+		const CharType& At(usize size) const;
+
+		usize Find(CharType ch, usize off = 0) const noexcept;
+		usize Find(BasicStringView str, usize off = 0) const noexcept;
+		usize Find(const CharType* str, usize off = 0) const noexcept;
+		usize Find(const CharType* str, usize off, usize len) const noexcept;
+		usize Find(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
+		usize Find(std::basic_string_view<CharType>& str, usize off = 0) const noexcept;
+
+		usize FindFirstOf(CharType ch, usize off = 0) const noexcept;
+		usize FindFirstOf(BasicStringView str, usize off = 0) const noexcept;
+		usize FindFirstOf(const CharType* str, usize off = 0) const noexcept;
+		usize FindFirstOf(const CharType* str, usize off, usize len) const noexcept;
+		usize FindFirstOf(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
+		usize FindFirstOf(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+
+		usize FindLastOf(CharType ch, usize off = NPos) const noexcept;
+		usize FindLastOf(BasicStringView str, usize off = 0) const noexcept;
+		usize FindLastOf(const CharType* str, usize off = NPos) const noexcept;
+		usize FindLastOf(const CharType* str, usize off, usize len) const noexcept;
+		usize FindLastOf(const std::basic_string<CharType>& str, usize off = NPos) const noexcept;
+		usize FindLastOf(std::basic_string_view<CharType> str, usize off = NPos) const noexcept;
+
+		usize FindFirstNotOf(CharType ch, usize off = 0) const noexcept;
+		usize FindFirstNotOf(BasicStringView str, usize off = 0) const noexcept;
+		usize FindFirstNotOf(const CharType* str, usize off = 0) const noexcept;
+		usize FindFirstNotOf(const CharType* str, usize off, usize len) const noexcept;
+		usize FindFirstNotOf(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
+		usize FindFirstNotOf(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+
+		usize FindLastNotOf(CharType ch, usize off = NPos) const noexcept;
+		usize FindLastNotOf(BasicStringView str, usize off = 0) const noexcept;
+		usize FindLastNotOf(const CharType* str, usize off = NPos) const noexcept;
+		usize FindLastNotOf(const CharType* str, usize off, usize len) const noexcept;
+		usize FindLastNotOf(const std::basic_string<CharType>& str, usize off = NPos) const noexcept;
+		usize FindLastNotOf(std::basic_string_view<CharType> str, usize off = NPos) const noexcept;
+	private:
+		CharType* m_str = nullptr;
+		usize m_len = 0;
+	};
+
+	template <typename CharType>
+	const CharType* BasicStringView<CharType>::Data() noexcept
+	{
+		return m_str;
+	}
+
+	template <typename CharType>
+	const CharType* BasicStringView<CharType>::Data() const noexcept
+	{
+		return m_str;
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType> BasicStringView<CharType>::Substr(usize off, usize len) const
+	{
+		off = std::min(off, m_len);
+		return BasicStringView(m_str + off, m_len - off);
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType> BasicStringView<CharType>::Right(usize len) const
+	{
+		return Substr(m_len - len, len);
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType> BasicStringView<CharType>::Left(usize len) const
+	{
+		return Substr(0, len);
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(CharType ch, usize off) const noexcept
+	{
+		return Find(ch, off) != NPos;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(BasicStringView str, usize off) const noexcept
+	{
+		return Find(str, off) != NPos;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(const CharType* str, usize off) const noexcept
+	{
+		return Find(str, off) != NPos;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(const CharType* str, usize off, usize len) const noexcept
+	{
+		return Find(str, off, len) != NPos;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return Find(str, off) != NPos;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::Contain(std::basic_string_view<CharType>& str, usize off) const noexcept
+	{
+		return Find(str, off) != NPos;
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::begin() const noexcept
+	{
+		return ConstIterator(Data());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::end() const noexcept
+	{
+		return ConstIterator(Data() + Size());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::cbegin() const noexcept
+	{
+		return ConstIterator(Data());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::cend() const noexcept
+	{
+		return ConstIterator(Data() + Size());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::rbegin() const noexcept
+	{
+		return ConstReverseIterator(end());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::rend() const noexcept
+	{
+		return ConstReverseIterator(begin());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::crbegin() const noexcept
+	{
+		return ConstReverseIterator(cend());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::crend() const noexcept
+	{
+		return ConstReverseIterator(cbegin());
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::Begin() const noexcept
+	{
+		return begin();
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::End() const noexcept
+	{
+		return end();
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::CBegin() const noexcept
+	{
+		return cbegin();
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType>::ConstIterator BasicStringView<CharType>::CEnd() const noexcept
+	{
+		return cend();
+	}
+
+	template <typename CharType>
+	typename BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::RBegin() const noexcept
+	{
+		return rbegin();
+	}
+
+	template <typename CharType>
+	typename BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::REnd() const noexcept
+	{
+		return rend();
+	}
+
+	template <typename CharType>
+	typename BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::CRBegin() const noexcept
+	{
+		return crbegin();
+	}
+
+	template <typename CharType>
+	typename BasicStringView<CharType>::ConstReverseIterator BasicStringView<CharType>::CREnd() const noexcept
+	{
+		return crend();
+	}
+
+	template <typename CharType>
+	CharType BasicStringView<CharType>::Front() const noexcept
+	{
+		return Data()[0];
+	}
+
+	template <typename CharType>
+	CharType BasicStringView<CharType>::Back() const noexcept
+	{
+		return Data()[m_len];
+	}
+
+	template <typename CharType>
+	const CharType& BasicStringView<CharType>::operator[](usize size) const noexcept
+	{
+		DEBUG_VERIFY_REPORT(size < m_len, "string subscription out of range")
+			return m_str[size];
+	}
+
+	template <typename CharType>
+	const CharType& BasicStringView<CharType>::At(usize size) const
+	{
+		if (size >= m_len)
+			throw InvalidArgument("BasicStringView", "Function At", "string subscription out of range");
+
+		return m_str[size];
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(CharType ch, usize off) const noexcept
+	{
+		return ChFind(ch, off, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(BasicStringView str, usize off) const noexcept
+	{
+		return Find(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(const CharType* str, usize off) const noexcept
+	{
+		return Find(str, off, CharTraits::length(str));
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(const CharType* str, usize off, usize len) const noexcept
+	{
+		return StrFind(str, off, len, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return Find(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::Find(std::basic_string_view<CharType>& str, usize off) const noexcept
+	{
+		return Find(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(CharType ch, usize off) const noexcept
+	{
+		return ChFindFirstOf(ch, off);
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(BasicStringView str, usize off) const noexcept
+	{
+		return FindFirstOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(const CharType* str, usize off) const noexcept
+	{
+		return FindFirstOf(str, off, CharTraits::length(str));
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(const CharType* str, usize off, usize len) const noexcept
+	{
+		return StrFindFirstOf(str, off, len, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return FindFirstOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	{
+		return FindFirstOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(CharType ch, usize off) const noexcept
+	{
+		return ChFindLastOf(ch, off);
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(BasicStringView str, usize off) const noexcept
+	{
+		return FindLastOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(const CharType* str, usize off) const noexcept
+	{
+		return FindLastOf(str, off, CharTraits::length(str));
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(const CharType* str, usize off, usize len) const noexcept
+	{
+		return StrFindLastOf(str, off, len, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return FindLastOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	{
+		return FindLastOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(CharType ch, usize off) const noexcept
+	{
+		return ChFindFirstNotOf(ch, off);
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(BasicStringView str, usize off) const noexcept
+	{
+		return FindFirstNotOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(const CharType* str, usize off) const noexcept
+	{
+		return FindFirstNotOf(str, off, CharTraits::length(str));
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(const CharType* str, usize off, usize len) const noexcept
+	{
+		return StrFindFirstNotOf(str, off, len, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return FindFirstNotOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindFirstNotOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	{
+		return FindFirstNotOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(CharType ch, usize off) const noexcept
+	{
+		return ChFindLastNotOf(ch, off);
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(BasicStringView str, usize off) const noexcept
+	{
+		return FindLastNotOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(const CharType* str, usize off) const noexcept
+	{
+		return FindLastNotOf(str, off, CharTraits::length(str));
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(const CharType* str, usize off, usize len) const noexcept
+	{
+		return StrFindLastNotOf(str, off, len, Data(), Size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	{
+		return FindLastNotOf(str.data(), off, str.size());
+	}
+
+	template <typename CharType>
+	usize BasicStringView<CharType>::FindLastNotOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	{
+		return FindLastNotOf(str.data(), off, str.size());
+	}
+
+	using StringView = BasicStringView<cch>;
+	using U32View = BasicStringView<ch32>;
+}
+
+template <typename CharType>
+struct std::hash<PenFramework::PenEngine::BasicStringView<CharType>>
+{
+	static PenFramework::PenEngine::usize operator()(PenFramework::PenEngine::BasicStringView<CharType>&& str) noexcept
+	{
+		return std::hash<std::string_view>(std::string_view(str.Data(), str.Size()));
+	}
+};

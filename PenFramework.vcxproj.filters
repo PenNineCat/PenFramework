@@ -13,10 +13,78 @@
     <Filter Include="Code\Engine">
       <UniqueIdentifier>{4759601b-e458-456b-8e91-b7ccd98e730d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Engine\Common">
+      <UniqueIdentifier>{0acca4b0-d53e-4675-89c6-b11f4796fdd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\DebugTools">
+      <UniqueIdentifier>{d0cc10f2-ffae-4443-9154-e99ffed73fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\Utils">
+      <UniqueIdentifier>{1eb064f6-1b60-44aa-bb19-def50183fda2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\Common\String">
+      <UniqueIdentifier>{85cf3591-23af-4c75-8294-709776a48228}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\Engine\Common\Type.hpp">
+      <Filter>Code\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Common\Iterator.hpp">
+      <Filter>Code\Engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\DebugTools\Verify.hpp">
+      <Filter>Code\Engine\DebugTools</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Preprocessor.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Singleton.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\TransparentHash.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Concept.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Flag.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Utils\Logger.hpp">
+      <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\String.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringMap.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringSet.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringTransparentHash.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringUnorderedMap.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringUnorderedSet.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StringView.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\StrSearchUtils.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\String\Fromat.hpp">
+      <Filter>Code\Engine\Common\String</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
