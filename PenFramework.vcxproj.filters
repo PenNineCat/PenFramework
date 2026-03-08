@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{88554f81-8ee5-4af5-b760-17b2bffe27dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CodeSnippet">
+      <UniqueIdentifier>{a6790c75-223a-4eea-b314-e95a8d4c765a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\UnitTest">
+      <UniqueIdentifier>{a2ed6f8c-1341-449d-b848-a10a1f092e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine">
+      <UniqueIdentifier>{4759601b-e458-456b-8e91-b7ccd98e730d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
