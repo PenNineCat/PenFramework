@@ -6,12 +6,10 @@
 
 #include "Code/Engine/String/String.hpp"
 
-using namespace PenFramework;
-using namespace PenEngine;
-using namespace UnitTest;
-
 int main()
 {
+	constexpr bool s = noexcept(PenFramework::PenEngine::Begin(std::declval<std::string&>()));
+	std::string_view a = std::string();
 	auto& instance = PenFramework::UnitTest::Core::UnitTestManager().GetInstance();
 
 	instance.Init(std::make_unique<PenFramework::UnitTest::SpdlogSTSharedContext>());

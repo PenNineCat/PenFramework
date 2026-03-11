@@ -173,6 +173,42 @@ namespace PenFramework::UnitTest
 			}
 		}
 
+		// 转码操作
+		UNIT_TEST_CHECKPOINT("测试 ConvertAndPushFront, ConvertAndPushBack")
+		{
+			String s1("Hello");
+			String s2 = s1;
+			String s3 = s1;
+
+			wch wchworld[] = L",world";
+			ch16 u16world[] = u",world";
+			ch32 u32world[] = U",world";
+
+			s1.ConvertAndPushBack(wchworld);
+			s2.ConvertAndPushBack(u16world);
+			s3.ConvertAndPushBack(u32world);
+
+			UNIT_TEST_CONDITION("s1 + wchworld == \"Hello,world\"", s1 == "Hello,world")
+				UNIT_TEST_CONDITION("s2 + u16world == \"Hello,world\"", s2 == "Hello,world")
+				UNIT_TEST_CONDITION("s3 + u32world == \"Hello,world\"", s3 == "Hello,world")
+
+				String s4(",world");
+			String s5 = s4;
+			String s6 = s4;
+
+			wch wchhello[] = L"Hello";
+			ch16 u16hello[] = u"Hello";
+			ch32 u32hello[] = U"Hello";
+
+			s4.ConvertAndPushFront(wchhello);
+			s5.ConvertAndPushFront(u16hello);
+			s6.ConvertAndPushFront(u32hello);
+
+			UNIT_TEST_CONDITION("wchhello + s4 == \"Hello,world\"",s4 == "Hello,world")
+				UNIT_TEST_CONDITION("ch16hello + s5 == \"Hello,world\"", s5 == "Hello,world")
+				UNIT_TEST_CONDITION("ch32hello + s6 == \"Hello,world\"", s6 == "Hello,world")
+		}
+
 		// --- 访问与子串 ---
 		UNIT_TEST_CHECKPOINT("测试 Data, CStr, Front, Back, SubStr, Left, Right")
 		{
@@ -338,6 +374,31 @@ namespace PenFramework::UnitTest
 			UNIT_TEST_CONDITION("空字符串 begin == end", empty_str.begin() == empty_str.end())
 				UNIT_TEST_CONDITION("空字符串 rbegin == rend", empty_str.rbegin() == empty_str.rend())
 		}
+
+		UNIT_TEST_CHECKPOINT("ConvertXXX Plan Benchmark")
+		auto aSt = std::chrono::steady_clock::now();
+
+		wch testStr[] = L"This is a benchmark test, and the str is long enough to use heap buffer.";
+
+		for (usize i = 0; i < 10000; ++i)
+		{
+			String str("Hello,world!");
+			str.ConvertAndPushFront(testStr,73);
+		}
+		auto aEn = std::chrono::steady_clock::now();
+
+		UNIT_TEST_MESSAGE(Format("Plan A总耗时：{}",aEn - aSt))
+
+		auto bSt = std::chrono::steady_clock::now();
+		for (usize i = 0; i < 10000; ++i)
+		{
+			String str("Hello,world!");
+			str.ConvertAndPushFrontB(testStr, 73);
+		}
+		auto bEn = std::chrono::steady_clock::now();
+
+		UNIT_TEST_MESSAGE(Format("Plan B总耗时：{}", bEn - bSt))
+
 
 		UNIT_TEST_MESSAGE("String 所有测试通过")
 			UNIT_TEST_CHECKPOINT("String 单元测试完成")

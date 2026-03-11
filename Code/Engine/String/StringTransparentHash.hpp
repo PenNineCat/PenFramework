@@ -17,6 +17,8 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	struct StringTransparentHash
 	{
+		using is_transparent = void;
+
 		static usize operator()(BasicStringView<CharType> str) noexcept
 		{
 			return std::hash<BasicStringView<CharType>>::operator()(str);
@@ -29,7 +31,7 @@ namespace PenFramework::PenEngine
 
 		static usize operator()(const CharType* ptr) noexcept
 		{
-			return std::hash<BasicStringView<CharType>>(BasicStringView<CharType>::operator()(ptr));
+			return std::hash<BasicStringView<CharType>>::operator()(BasicStringView<CharType>(ptr));
 		}
 	};
 }

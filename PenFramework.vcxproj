@@ -165,13 +165,14 @@
     <ClInclude Include="Code\Engine\Utils\Singleton.hpp" />
     <ClInclude Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.h" />
     <ClInclude Include="Code\UnitTest\Tests\Test_Format.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_MathFunction.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_String.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_String_NotVectorizedFindXXX.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec2.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec3.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec4.hpp" />
     <ClInclude Include="Code\UnitTest\UnitTestFramework.h" />
     <ClInclude Include="Code\UnitTest\UnitTestInterface.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="CodeSnippet\FileHeader.snippet" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

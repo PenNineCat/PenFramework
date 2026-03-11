@@ -140,10 +140,17 @@
     <ClInclude Include="Code\Engine\Math\Color.hpp">
       <Filter>Code\Engine\Math</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="CodeSnippet\FileHeader.snippet">
-      <Filter>CodeSnippet</Filter>
-    </None>
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec3.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec4.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_MathFunction.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_Vec2.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

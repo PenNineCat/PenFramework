@@ -158,35 +158,36 @@ namespace PenFramework::PenEngine
 		using ConstIterator = const_iterator;
 
 		BasicStringView() noexcept = default;
-		/*implict*/ BasicStringView(const CharType* str) noexcept : BasicStringView(str, std::char_traits<CharType>::length(str)) {}
+		/*implicit*/ BasicStringView(const CharType* str) noexcept : BasicStringView(str, std::char_traits<CharType>::length(str)) {}
 		BasicStringView(const CharType* str, usize len) noexcept : m_str(str), m_len(len) {}
 
 		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
-		&& Ranges::ContiguousRange<Range>
-			&& Ranges::SizedRange<Range>
-			&& std::same_as<Ranges::RangeValueType<Range>, CharType>
+		&& ContiguousRange<Range>
+			&& SizedRange<Range>
+			&& std::same_as<RangeValueType<Range>, CharType>
 			&& !std::is_convertible_v<Range, const CharType*>
 			&& !requires(std::remove_cvref_t<Range>& Rng)
 		{
 			Rng.operator BasicStringView<CharType>();
 		})
-			constexpr /* implicit */ BasicStringView(Range&& rng) noexcept(noexcept(Ranges::Data(rng)) && noexcept(Ranges::Size(rng)))
-			: m_str(Ranges::Data(rng)), m_len(static_cast<usize>(Ranges::Size(rng))) {
+			constexpr explicit BasicStringView(Range&& rng) noexcept(noexcept(PenEngine::Data(rng)) && noexcept(PenEngine::Size(rng)))
+			: m_str(PenEngine::Data(rng)), m_len(static_cast<usize>(PenEngine::Size(rng))) {
 		}
 
 		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
-		&& Ranges::ContiguousRange<Range>
-			&& Ranges::SizedRange<Range>
-			&& std::same_as<Ranges::RangeValueType<Range>, CharType>
+		&& ContiguousRange<Range>
+			&& SizedRange<Range>
+			&& std::same_as<RangeValueType<Range>, CharType>
 			&& !std::is_convertible_v<Range, const CharType*>
 			&& !requires(std::remove_cvref_t<Range>& Rng)
 		{
 			Rng.operator BasicStringView<CharType>();
 		})
-			constexpr BasicStringView& operator=(Range&& rng) noexcept(noexcept(Ranges::Data(rng)) && noexcept(Ranges::Size(rng)))
+			constexpr BasicStringView& operator=(Range&& rng) noexcept(noexcept(PenEngine::Data(rng)) && noexcept(PenEngine::Size(rng)))
 		{
-			m_str = Ranges::Data(rng);
-			m_len = static_cast<usize>(Ranges::Size(rng));
+			m_str = PenEngine::Data(rng);
+			m_len = static_cast<usize>(PenEngine::Size(rng));
+			return *this;
 		}
 
 		usize Capacity() const noexcept { return m_len; }
