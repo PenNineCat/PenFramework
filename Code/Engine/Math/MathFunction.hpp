@@ -36,7 +36,7 @@ namespace PenFramework::PenEngine
 	/// @param n 必须是2的幂且大于等于2
 	/// @param x 输入值
 	/// @return 向上取整到N的倍数的结果，如果n不满足则返回0
-	[[nodiscard]] constexpr u64 CeilPow2(u8 x, u8 n) noexcept
+	[[nodiscard]] constexpr u64 CeilPow2(U8 x, U8 n) noexcept
 	{
 		if (n < 2 || !std::has_single_bit(n))
 			return 0;
@@ -45,27 +45,27 @@ namespace PenFramework::PenEngine
 	/// @brief 计算向上取整到64的倍数的值
 	/// @param x 输入值
 	/// @return 向上取整到64的倍数的结果
-	[[nodiscard]] constexpr u64 Ceil64(u8 x) noexcept { return CeilPow2(x, 64); }
+	[[nodiscard]] constexpr u64 Ceil64(U8 x) noexcept { return CeilPow2(x, 64); }
 
 	/// @brief 计算向上取整到32的倍数的值
 	/// @param x 输入值
 	/// @return 向上取整到32的倍数的结果
-	[[nodiscard]] constexpr u64 Ceil32(u8 x) noexcept { return CeilPow2(x, 32); }
+	[[nodiscard]] constexpr u64 Ceil32(U8 x) noexcept { return CeilPow2(x, 32); }
 
 	/// @brief 计算向上取整到16的倍数的值
 	/// @param x 输入值
 	/// @return 向上取整到16的倍数的结果
-	[[nodiscard]] constexpr u64 Ceil16(u8 x) noexcept { return CeilPow2(x, 16); }
+	[[nodiscard]] constexpr u64 Ceil16(U8 x) noexcept { return CeilPow2(x, 16); }
 
 	/// @brief 计算向上取整到8的倍数的值
 	/// @param x 输入值
 	/// @return 向上取整到8的倍数的结果
-	[[nodiscard]] constexpr u64 Ceil8(u8 x) noexcept { return CeilPow2(x, 8); }
+	[[nodiscard]] constexpr u64 Ceil8(U8 x) noexcept { return CeilPow2(x, 8); }
 
 	/// @brief 计算向上取整到4的倍数的值
 	/// @param x 输入值
 	/// @return 向上取整到4的倍数的结果
-	[[nodiscard]] constexpr u64 Ceil4(u8 x) noexcept { return CeilPow2(x, 4); }
+	[[nodiscard]] constexpr u64 Ceil4(U8 x) noexcept { return CeilPow2(x, 4); }
 
 	template <typename T> requires std::is_integral_v<T> || std::is_floating_point_v<T>
 	[[nodiscard]] constexpr T Clamp(T value, T low, T high) noexcept
@@ -81,7 +81,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename T> requires std::is_arithmetic_v<T>
-	[[nodiscard]] constexpr T Pow(T base, usize exponent) noexcept
+	[[nodiscard]] constexpr T Pow(T base, Usize exponent) noexcept
 	{
 		if consteval
 		{

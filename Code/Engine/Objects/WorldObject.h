@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/Objects/WorldObject.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "PObject.h"
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	class WorldObject : public PObject
+	{
+	public:
+	private:
+	};
 }

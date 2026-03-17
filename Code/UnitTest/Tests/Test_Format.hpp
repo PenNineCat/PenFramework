@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../Engine/String/Fromat.hpp"
+#include "../../Engine/String/Format.hpp"
 #include "../UnitTestFramework.h"
 
 #include <numbers>

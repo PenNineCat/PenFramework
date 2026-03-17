@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/IO/IIODevice.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -10,13 +10,27 @@
 
 #pragma once
 
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "IInputStream.h"
+#include "IOutputStream.h"
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	enum class IODeviceMode : U8
+	{
+		WriteOnly,
+		ReadOnly,
+
+		WriteAndRead,
+
+		Binary,
+		Text,
+	};
+	class IIODevice
+	{
+	public:
+		virtual ~IIODevice() noexcept = default;
+
+		virtual bool Read(IInputStream& stream) = 0;
+		virtual bool Write(IOutputStream& stream) = 0;
+	};
 }

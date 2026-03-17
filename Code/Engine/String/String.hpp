@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../Common/Iterator.hpp"
+#include "../Utils/Iterator.hpp"
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/Exception.hpp"
@@ -32,14 +32,14 @@ namespace PenFramework::PenEngine
 	class BasicString
 	{
 	public:
-		static constexpr u8 LocalStorageCapacity = 22ull / sizeof(CharType);
-		static constexpr u8 AllocateMask = sizeof(CharType) <= 1 ? 15
+		static constexpr U8 LocalStorageCapacity = 22ull / sizeof(CharType);
+		static constexpr U8 AllocateMask = sizeof(CharType) <= 1 ? 15
 			: sizeof(CharType) <= 2 ? 7
 			: sizeof(CharType) <= 4 ? 3
 			: sizeof(CharType) <= 8 ? 1
 			: 0;
-		static constexpr usize MaxStorageCapacity = (std::numeric_limits<usize>::max() >> 1) / sizeof(CharType);
-		static constexpr usize NPos = static_cast<usize>(-1);
+		static constexpr Usize MaxStorageCapacity = (std::numeric_limits<Usize>::max() >> 1) / sizeof(CharType);
+		static constexpr Usize NPos = static_cast<Usize>(-1);
 
 		using CharTraits = std::char_traits<CharType>;
 
@@ -49,8 +49,8 @@ namespace PenFramework::PenEngine
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
 
-		using size_type = usize;
-		using difference_type = isize;
+		using size_type = Usize;
+		using difference_type = Isize;
 
 		using is_contiguous = std::true_type;
 
@@ -59,7 +59,7 @@ namespace PenFramework::PenEngine
 		public:
 			using iterator_category = std::contiguous_iterator_tag;
 			using value_type = value_type;
-			using difference_type = isize;
+			using difference_type = Isize;
 			using pointer = value_type*;
 			using reference = value_type&;
 
@@ -90,7 +90,6 @@ namespace PenFramework::PenEngine
 			bool operator==(const Iterator&) const noexcept = default;
 			auto operator<=>(const Iterator&) const noexcept = default;
 		};
-
 		using ConstIterator = StringConstIterator<CharType>;
 		using ReverseIterator = std::reverse_iterator<Iterator>;
 		using ConstReverseIterator = std::reverse_iterator<ConstIterator>;
@@ -102,18 +101,18 @@ namespace PenFramework::PenEngine
 
 		BasicString() noexcept;
 
-		explicit BasicString(usize capacity);
-		BasicString(CharType ch, usize count);
+		explicit BasicString(Usize capacity);
+		BasicString(CharType ch, Usize count);
 		explicit BasicString(const CharType* str);
-		BasicString(const CharType* str, usize length);
+		BasicString(const CharType* str, Usize length);
 
 		template <typename SourceCharType>
-		BasicString(const SourceCharType* str, usize length, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
+		BasicString(const SourceCharType* str, Usize length, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 
 		BasicString(const BasicString& other);
 		BasicString(BasicString&& other) noexcept;
 
-		BasicString(const BasicString& other, usize len);
+		BasicString(const BasicString& other, Usize len);
 
 		explicit BasicString(BasicStringView<CharType> str) : BasicString(str.Data(), str.Size()) {}
 
@@ -127,7 +126,7 @@ namespace PenFramework::PenEngine
 
 		~BasicString() noexcept;
 
-		BasicString& operator+=(const BasicString& other);
+		BasicString& operator+=(const BasicString& str);
 		BasicString& operator+=(const CharType* str);
 		BasicString& operator+=(const std::basic_string<CharType>& str);
 		BasicString& operator+=(std::basic_string_view<CharType> str);
@@ -146,35 +145,46 @@ namespace PenFramework::PenEngine
 		bool operator==(std::basic_string_view<CharType> str) const noexcept;
 		bool operator==(CharType ch) const noexcept;
 
-		usize Size() const noexcept;
-		usize Capacity() const noexcept;
+		Usize Size() const noexcept;
+		Usize Capacity() const noexcept;
 		bool Empty() const noexcept;
 
-		void Reserve(usize newCapacity);
-		void ReserveExtra(usize extraCapacity);
-		void Resize(usize size, CharType ch = CharType());
+		void Reserve(Usize newCapacity);
+		void ReserveExtra(Usize extraCapacity);
+		void Resize(Usize size, CharType ch = CharType());
 		void ShrinkToFit();
 
 		CharType* Data() noexcept;
 		const CharType* Data() const noexcept;
 
-		BasicString Substr(usize off = 0, usize len = NPos) const;
-		BasicString Right(usize len) const;
-		BasicString Left(usize len) const;
+		BasicString Substr(Usize off = 0, Usize len = NPos) const;
+		BasicString Right(Usize len) const;
+		BasicString Left(Usize len) const;
+
+		std::vector<BasicString> Split(CharType ch) const;
 
 		void Clear() noexcept;
 
 		template <typename TargetCharType>
 		std::basic_string<TargetCharType> ToStdString(boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method) const;
 
-		/* implicit */ operator BasicStringView<CharType>() const noexcept;
+		/* implicit */ operator BasicStringView<CharType>() const noexcept
+		{
+			return BasicStringView<CharType>(Data(), Size());
+		}
 
 		void Append(const BasicString& other);
 		void Append(const CharType* str);
-		void Append(const CharType* str, usize len);
-		void Append(CharType ch, usize count = 1);
+		void Append(const CharType* str, Usize len);
+		void Append(CharType ch);
+		void Append(CharType ch, Usize count);
 		void Append(const std::basic_string<CharType>& str);
 		void Append(std::basic_string_view<CharType> str);
+
+		Iterator Remove(Usize off = 0) noexcept;
+		Iterator Remove(ConstIterator it, Usize count = 1);
+		Iterator Remove(ConstIterator begin, ConstIterator end);
+		Iterator Remove(CharType ch, Usize off = 0);
 
 		template <typename SourceCharType>
 		void ConvertAndAppend(const BasicString<SourceCharType>& str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
@@ -182,7 +192,7 @@ namespace PenFramework::PenEngine
 		void ConvertAndAppend(const SourceCharType* str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		 // @todo 这个地方需要一次Benchmark，以判断是临时缓冲区性能更高，还是双循环性能更高
 		template <typename SourceCharType>
-		void ConvertAndAppend(const SourceCharType* str, usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
+		void ConvertAndAppend(const SourceCharType* str, Usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndAppend(const std::basic_string<SourceCharType>& str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
@@ -192,8 +202,9 @@ namespace PenFramework::PenEngine
 
 		void PushBack(const BasicString& other);
 		void PushBack(const CharType* str);
-		void PushBack(const CharType* str, usize len);
-		void PushBack(CharType ch, usize count = 1);
+		void PushBack(const CharType* str, Usize len);
+		void PushBack(CharType ch, Usize count);
+		void PushBack(CharType ch);
 		void PushBack(const std::basic_string<CharType>& str);
 		void PushBack(std::basic_string_view<CharType> str);
 
@@ -202,7 +213,7 @@ namespace PenFramework::PenEngine
 		template <typename SourceCharType>
 		void ConvertAndPushBack(const SourceCharType* str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
-		void ConvertAndPushBack(const SourceCharType* str, usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
+		void ConvertAndPushBack(const SourceCharType* str, Usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndPushBack(const std::basic_string<SourceCharType>& str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
@@ -210,8 +221,8 @@ namespace PenFramework::PenEngine
 
 		void PushFront(const BasicString& other);
 		void PushFront(const CharType* str);
-		void PushFront(const CharType* str, usize len);
-		void PushFront(CharType ch, usize count = 1);
+		void PushFront(const CharType* str, Usize len);
+		void PushFront(CharType ch, Usize count = 1);
 		void PushFront(const std::basic_string<CharType>& str);
 		void PushFront(std::basic_string_view<CharType> str);
 
@@ -219,26 +230,25 @@ namespace PenFramework::PenEngine
 		void ConvertAndPushFront(const BasicString<SourceCharType>& other, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndPushFront(const SourceCharType* str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
-		// @todo 这个地方需要一次Benchmark，以判断是临时缓冲区性能更高，还是双循环性能更高
 		template <typename SourceCharType>
-		void ConvertAndPushFront(const SourceCharType* str, usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
+		void ConvertAndPushFront(const SourceCharType* str, Usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndPushFront(const std::basic_string<SourceCharType>& str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndPushFront(std::basic_string_view<SourceCharType> str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 
-		template <typename SourceCharType>
-		void ConvertAndPushFrontB(const SourceCharType* str, usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
+		template <typename TargetCharType>
+		BasicString<TargetCharType> ConvertTo(boost::locale::conv::method_type how = boost::locale::conv::method_type::how);
 
 		template <typename T> requires (std::is_arithmetic_v<T> && !std::is_same_v<T, CharType>)
 			void Append(T v);
 
-		bool Contain(CharType ch, usize off = 0) const noexcept;
-		bool Contain(const CharType* str, usize off = 0) const noexcept;
-		bool Contain(const CharType* str, usize off, usize len) const noexcept;
-		bool Contain(const BasicString& other, usize off = 0) const noexcept;
-		bool Contain(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
-		bool Contain(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+		bool Contain(CharType ch, Usize off = 0) const noexcept;
+		bool Contain(const CharType* str, Usize off = 0) const noexcept;
+		bool Contain(const CharType* str, Usize off, Usize len) const noexcept;
+		bool Contain(const BasicString& other, Usize off = 0) const noexcept;
+		bool Contain(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
+		bool Contain(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
 		ConstIterator begin() const noexcept;
 		ConstIterator end() const noexcept;
@@ -271,84 +281,78 @@ namespace PenFramework::PenEngine
 		CharType Front() const noexcept;
 		CharType Back() const noexcept;
 
-		reference operator[](usize pos) noexcept;
-		const_reference operator[](usize pos) const noexcept;
+		reference operator[](Usize pos) noexcept;
+		const_reference operator[](Usize pos) const noexcept;
 
-		usize Find(CharType ch, usize off = 0) const noexcept;
-		usize Find(const BasicString& other, usize off = 0) const noexcept;
-		usize Find(const CharType* str, usize off = 0) const noexcept;
-		usize Find(const CharType* str, usize off, usize len) const noexcept;
-		usize Find(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
-		usize Find(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+		Usize Find(CharType ch, Usize off = 0) const noexcept;
+		Usize Find(const BasicString& other, Usize off = 0) const noexcept;
+		Usize Find(const CharType* str, Usize off = 0) const noexcept;
+		Usize Find(const CharType* str, Usize off, Usize len) const noexcept;
+		Usize Find(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
+		Usize Find(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
-		usize FindFirstOf(CharType ch, usize off = 0) const noexcept;
-		usize FindFirstOf(const BasicString& other, usize off = 0) const noexcept;
-		usize FindFirstOf(const CharType* str, usize off = 0) const noexcept;
-		usize FindFirstOf(const CharType* str, usize off, usize len) const noexcept;
-		usize FindFirstOf(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
-		usize FindFirstOf(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+		Usize FindFirstOf(CharType ch, Usize off = 0) const noexcept;
+		Usize FindFirstOf(const BasicString& other, Usize off = 0) const noexcept;
+		Usize FindFirstOf(const CharType* str, Usize off = 0) const noexcept;
+		Usize FindFirstOf(const CharType* str, Usize off, Usize len) const noexcept;
+		Usize FindFirstOf(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
+		Usize FindFirstOf(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
-		usize FindLastOf(CharType ch, usize off = NPos) const noexcept;
-		usize FindLastOf(const BasicString& other, usize off = NPos) const noexcept;
-		usize FindLastOf(const CharType* str, usize off = NPos) const noexcept;
-		usize FindLastOf(const CharType* str, usize off, usize len) const noexcept;
-		usize FindLastOf(const std::basic_string<CharType>& str, usize off = NPos) const noexcept;
-		usize FindLastOf(std::basic_string_view<CharType> str, usize off = NPos) const noexcept;
+		Usize FindLastOf(CharType ch, Usize off = NPos) const noexcept;
+		Usize FindLastOf(const BasicString& other, Usize off = NPos) const noexcept;
+		Usize FindLastOf(const CharType* str, Usize off = NPos) const noexcept;
+		Usize FindLastOf(const CharType* str, Usize off, Usize len) const noexcept;
+		Usize FindLastOf(const std::basic_string<CharType>& str, Usize off = NPos) const noexcept;
+		Usize FindLastOf(std::basic_string_view<CharType> str, Usize off = NPos) const noexcept;
 
-		usize FindFirstNotOf(CharType ch, usize off = 0) const noexcept;
-		usize FindFirstNotOf(const BasicString& other, usize off = 0) const noexcept;
-		usize FindFirstNotOf(const CharType* str, usize off = 0) const noexcept;
-		usize FindFirstNotOf(const CharType* str, usize off, usize len) const noexcept;
-		usize FindFirstNotOf(const std::basic_string<CharType>& str, usize off = 0) const noexcept;
-		usize FindFirstNotOf(std::basic_string_view<CharType> str, usize off = 0) const noexcept;
+		Usize FindFirstNotOf(CharType ch, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(const BasicString& other, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(const CharType* str, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(const CharType* str, Usize off, Usize len) const noexcept;
+		Usize FindFirstNotOf(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
-		usize FindLastNotOf(CharType ch, usize off = NPos) const noexcept;
-		usize FindLastNotOf(const BasicString& other, usize off = NPos) const noexcept;
-		usize FindLastNotOf(const CharType* str, usize off = NPos) const noexcept;
-		usize FindLastNotOf(const CharType* str, usize off, usize len) const noexcept;
-		usize FindLastNotOf(const std::basic_string<CharType>& str, usize off = NPos) const noexcept;
-		usize FindLastNotOf(std::basic_string_view<CharType> str, usize off = NPos) const noexcept;
+		Usize FindLastNotOf(CharType ch, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(const BasicString& other, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(const CharType* str, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(const CharType* str, Usize off, Usize len) const noexcept;
+		Usize FindLastNotOf(const std::basic_string<CharType>& str, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(std::basic_string_view<CharType> str, Usize off = NPos) const noexcept;
 	protected:
-		void ResetSizeAndEos(usize size) noexcept;
+		void ResetSizeAndEos(Usize size) noexcept;
 
 		CharType* Buffer() noexcept;
 		const CharType* Buffer() const noexcept;
 
-		static usize CalculateAllocateCapacity(usize requestCapacity, usize currentCapacity, usize maxCapacity) noexcept;
+		static Usize CalculateAllocateCapacity(Usize requestCapacity, Usize currentCapacity, Usize maxCapacity) noexcept;
 
-		void ReallocateHeapBuffer(usize capacity);
-		void ReallocateHeapBufferByCapacity(usize capacity);
-		void CleanAndReBuild(const CharType* str, usize len);
+		void ReallocateHeapBuffer(Usize capacity);
+		void ReallocateHeapBufferByCapacity(Usize capacity);
+		void CleanAndReBuild(const CharType* str, Usize len);
 		void DeallocateBuffer() noexcept;
 
+		void InternalRemove(Usize off, Usize count) noexcept;
+
 		void InitSSOBuffer() noexcept;
-		void InitHeapBuffer(usize capacity);
+		void InitHeapBuffer(Usize capacity);
 
 		bool IsHeapBuffer() const noexcept;
 
 		void MoveToStack() noexcept;
-		void MoveToHeap(usize capacity);
+		void MoveToHeap(Usize capacity);
 
 		union Buffer
 		{
-			struct Stack
-			{
-				u8 IsHeapBuffer : 1;
-				u8 Size : 7;
-				CharType Buffer[LocalStorageCapacity + 1];
-			} Stack;
-			struct Heap
-			{
-				usize IsHeapBuffer : 1;
-				usize Size : sizeof(usize)* BitsPerBytes - 1;
-				usize Capacity;
-				CharType* Buffer;
-			} Heap;
+			CharType Stack[LocalStorageCapacity + 1];
+			CharType* Heap;
 		} m_buffer;
+
+		Usize m_size;
+		Usize m_capacity;
 	};
 
-	using String = BasicString<cch>;
-	using U32String = BasicString<ch32>;
+	using String = BasicString<Ch>;
+	using U32String = BasicString<Ch32>;
 
 	template <typename CharType>
 	BasicString<CharType>::BasicString() noexcept
@@ -357,7 +361,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::BasicString(usize capacity)
+	BasicString<CharType>::BasicString(Usize capacity)
 	{
 		if (capacity <= LocalStorageCapacity)
 			InitSSOBuffer();
@@ -366,29 +370,25 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::BasicString(CharType ch, usize count)
+	BasicString<CharType>::BasicString(CharType ch, Usize count)
 	{
 		if (count <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 
-			m_buffer.Stack.Size = count;
+			m_size = count;
 
-			for (usize i = 0; i < count; ++i)
-				m_buffer.Stack.Buffer[i] = ch;
-
-			m_buffer.Stack.Buffer[count] = CharType();
+			CharTraits::assign(m_buffer.Stack, count, ch);
+			m_buffer.Stack[count] = CharType();
 		}
 		else
 		{
 			InitHeapBuffer(count);
 
-			m_buffer.Heap.Size = count;
+			m_size = count;
 
-			for (usize i = 0; i < count; ++i)
-				m_buffer.Heap.Buffer[i] = ch;
-
-			m_buffer.Heap.Buffer[count] = CharType();
+			CharTraits::assign(m_buffer.Heap, count, ch);
+			m_buffer.Heap[count] = CharType();
 		}
 	}
 
@@ -398,25 +398,25 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::BasicString(const CharType* str, usize length)
+	BasicString<CharType>::BasicString(const CharType* str, Usize length)
 	{
 		if (length <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
 
-			memcpy(m_buffer.Stack.Buffer, str, length * sizeof(CharType));
+			CharTraits::copy(m_buffer.Stack, str, length);
 
-			m_buffer.Stack.Size = length;
-			m_buffer.Stack.Buffer[length] = CharType();
+			m_size = length;
+			m_buffer.Stack[length] = CharType();
 		}
 		else
 		{
 			InitHeapBuffer(length);
 
-			memcpy(m_buffer.Heap.Buffer, str, length * sizeof(CharType));
+			CharTraits::copy(m_buffer.Heap, str, length);
 
-			m_buffer.Heap.Size = length;
-			m_buffer.Heap.Buffer[length] = CharType();
+			m_size = length;
+			m_buffer.Heap[length] = CharType();
 		}
 	}
 
@@ -431,10 +431,12 @@ namespace PenFramework::PenEngine
 	{
 		InitSSOBuffer();
 		std::swap(m_buffer, other.m_buffer);
+		std::swap(m_size,other.m_size);
+		std::swap(m_capacity,other.m_capacity);
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::BasicString(const BasicString& other, usize len) : BasicString(other.Data(), std::min(len, other.Size()))
+	BasicString<CharType>::BasicString(const BasicString& other, Usize len) : BasicString(other.Data(), std::min(len, other.Size()))
 	{
 	}
 
@@ -485,9 +487,9 @@ namespace PenFramework::PenEngine
 	BasicString<CharType>& BasicString<CharType>::operator=(CharType ch)
 	{
 		DeallocateBuffer();
-		m_buffer.Stack.Buffer[0] = ch;
-		m_buffer.Stack.Size = 1;
-		m_buffer.Stack.Buffer[1] = CharType();
+		m_buffer.Stack[0] = ch;
+		m_size = 1;
+		m_buffer.Stack[1] = CharType();
 		return *this;
 	}
 
@@ -498,76 +500,37 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>& BasicString<CharType>::operator+=(const BasicString& other)
+	BasicString<CharType>& BasicString<CharType>::operator+=(const BasicString& str)
 	{
-		usize curSize = Size();
-		usize othSize = other.Size();
-
-		ReserveExtra(othSize);
-
-		memcpy(Buffer() + curSize, other.Data(), othSize * sizeof(CharType));
-
-		ResetSizeAndEos(curSize + othSize);
-
+		Append(str);
 		return *this;
 	}
 
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator+=(const CharType* str)
 	{
-		usize curSize = Size();
-		usize strLength = CharTraits::length(str);
-
-		ReserveExtra(strLength);
-
-		memcpy(Buffer() + curSize, str, strLength * sizeof(CharType));
-
-		ResetSizeAndEos(curSize + strLength);
-
+		Append(str);
 		return *this;
 	}
 
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator+=(const std::basic_string<CharType>& str)
 	{
-		usize curSize = Size();
-		usize strSize = str.size();
-
-		ReserveExtra(strSize);
-
-		memcpy(Buffer() + curSize, str.data(), strSize * sizeof(CharType));
-
-		ResetSizeAndEos(curSize + strSize);
-
+		Append(str);
 		return *this;
 	}
 
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator+=(std::basic_string_view<CharType> str)
 	{
-		usize curSize = Size();
-		usize strSize = str.size();
-
-		ReserveExtra(strSize);
-
-		memcpy(Buffer() + curSize, str.data(), strSize * sizeof(CharType));
-
-		ResetSizeAndEos(curSize + strSize);
-
+		Append(str);
 		return *this;
 	}
 
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator+=(CharType ch)
 	{
-		usize curSize = Size();
-
-		ReserveExtra(1);
-
-		Buffer()[curSize] = ch;
-
-		ResetSizeAndEos(curSize + 1);
-
+		Append(ch);
 		return *this;
 	}
 
@@ -575,7 +538,7 @@ namespace PenFramework::PenEngine
 	BasicString<CharType> BasicString<CharType>::operator+(const BasicString& str)
 	{
 		BasicString tmp = *this;
-		tmp += str;
+		tmp.Append(str);
 		return tmp;
 	}
 
@@ -583,7 +546,7 @@ namespace PenFramework::PenEngine
 	BasicString<CharType> BasicString<CharType>::operator+(const CharType* str)
 	{
 		BasicString tmp = *this;
-		tmp += str;
+		tmp.Append(str);
 		return tmp;
 	}
 
@@ -591,7 +554,7 @@ namespace PenFramework::PenEngine
 	BasicString<CharType> BasicString<CharType>::operator+(const std::basic_string<CharType>& str)
 	{
 		BasicString tmp = *this;
-		tmp += str;
+		tmp.Append(str);
 		return tmp;
 	}
 
@@ -599,7 +562,7 @@ namespace PenFramework::PenEngine
 	BasicString<CharType> BasicString<CharType>::operator+(std::basic_string_view<CharType> str)
 	{
 		BasicString tmp = *this;
-		tmp += str;
+		tmp.Append(str);
 		return tmp;
 	}
 
@@ -607,29 +570,26 @@ namespace PenFramework::PenEngine
 	BasicString<CharType> BasicString<CharType>::operator+(CharType ch)
 	{
 		BasicString tmp = *this;
-		tmp += ch;
+		tmp.Append(ch);
 		return tmp;
 	}
 
 	template <typename CharType>
 	bool BasicString<CharType>::operator==(const BasicString& str) const noexcept
 	{
-		usize size = Size();
-		return size == str.Size() && CharTraits::compare(Data(), str.Data(), size) == 0;
+		return Size() == str.Size() && CharTraits::compare(Data(), str.Data(), Size()) == 0;
 	}
 
 	template <typename CharType>
 	bool BasicString<CharType>::operator==(BasicStringView<CharType> str) const noexcept
 	{
-		usize size = Size();
-		return size == str.Size() && CharTraits::compare(Data(), str.Data(), size) == 0;
+		return Size() == str.Size() && CharTraits::compare(Data(), str.Data(), Size()) == 0;
 	}
 
 	template <typename CharType>
 	bool BasicString<CharType>::operator==(const CharType* str) const noexcept
 	{
-		usize size = Size();
-		return CharTraits::compare(Data(), str, size) == 0 && str[size] == CharType();
+		return CharTraits::compare(Data(), str, Size()) == 0 && str[Size()] == CharType();
 	}
 
 	template <typename CharType>
@@ -641,8 +601,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	bool BasicString<CharType>::operator==(std::basic_string_view<CharType> str) const noexcept
 	{
-		usize size = Size();
-		return CharTraits::compare(Data(), str.data(), size) == 0 && str.size() == size;
+		return CharTraits::compare(Data(), str.data(), Size()) == 0 && str.size() == Size();
 	}
 
 	template <typename CharType>
@@ -652,19 +611,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Size() const noexcept
+	Usize BasicString<CharType>::Size() const noexcept
 	{
-		if (IsHeapBuffer())
-			return m_buffer.Heap.Size;
-		return m_buffer.Stack.Size;
+		return m_size;
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Capacity() const noexcept
+	Usize BasicString<CharType>::Capacity() const noexcept
 	{
-		if (IsHeapBuffer())
-			return m_buffer.Heap.Capacity;
-		return LocalStorageCapacity;
+		return m_capacity;
 	}
 
 	template <typename CharType>
@@ -674,37 +629,36 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::Reserve(usize newCapacity)
+	void BasicString<CharType>::Reserve(Usize newCapacity)
 	{
+		if (newCapacity <= m_capacity)
+			return;
+
 		if (IsHeapBuffer())
-		{
-			if (newCapacity > m_buffer.Heap.Capacity)
-				ReallocateHeapBuffer(newCapacity);
-		}
+			ReallocateHeapBuffer(newCapacity);
 		else
-		{
-			if (newCapacity > LocalStorageCapacity)
-				MoveToHeap(newCapacity);
-		}
+			MoveToHeap(newCapacity);
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::ReserveExtra(usize extraCapacity)
+	void BasicString<CharType>::ReserveExtra(Usize extraCapacity)
 	{
 		Reserve(Size() + extraCapacity);
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::Resize(usize size, CharType ch)
+	void BasicString<CharType>::Resize(Usize size, CharType ch)
 	{
-		if (usize currentSize = Size(); size > currentSize)
+		if (Usize currentSize = Size(); size > currentSize)
 		{
 			ReserveExtra(size);
 			CharType* buffer = Buffer();
-			for (usize i = currentSize; i < currentSize + size; ++i)
-				buffer[i] = ch;
+
+			CharTraits::assign(buffer + currentSize, size, ch);
+			buffer[currentSize + size] =  CharType();
 		}
-		ResetSizeAndEos(size);
+
+		m_size = size;
 	}
 
 	template <typename CharType>
@@ -712,10 +666,10 @@ namespace PenFramework::PenEngine
 	{
 		if (IsHeapBuffer())
 		{
-			if (m_buffer.Heap.Size <= LocalStorageCapacity)
+			if (m_size <= LocalStorageCapacity)
 				MoveToStack();
-			else if (m_buffer.Heap.Size < m_buffer.Heap.Capacity)
-				ReallocateHeapBufferByCapacity(m_buffer.Heap.Size);
+			else if (m_size < m_capacity)
+				ReallocateHeapBufferByCapacity(m_size);
 		}
 	}
 
@@ -732,9 +686,9 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType> BasicString<CharType>::Substr(usize off, usize len) const
+	BasicString<CharType> BasicString<CharType>::Substr(Usize off, Usize len) const
 	{
-		usize size = Size();
+		Usize size = Size();
 
 		if (off >= size)
 			return {};
@@ -745,15 +699,31 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType> BasicString<CharType>::Right(usize len) const
+	BasicString<CharType> BasicString<CharType>::Right(Usize len) const
 	{
 		return Substr(Size() - len, len);
 	}
 
 	template <typename CharType>
-	BasicString<CharType> BasicString<CharType>::Left(usize len) const
+	BasicString<CharType> BasicString<CharType>::Left(Usize len) const
 	{
-		return Substr(0, len);;
+		return Substr(0, len);
+	}
+
+	template <typename CharType>
+	std::vector<BasicString<CharType>> BasicString<CharType>::Split(CharType ch) const
+	{
+		Usize off = 0;
+		Usize st = 0;
+		std::vector<BasicString> res;
+		while (off != NPos)
+		{
+			off = Find(ch, off);
+			res.emplace_back(Substr(st, off));
+			st = off;
+		}
+
+		return res;
 	}
 
 	template <typename CharType>
@@ -773,18 +743,9 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::operator BasicStringView<CharType>() const noexcept
-	{
-		return BasicStringView<CharType>(Data(), Size());
-	}
-
-	template <typename CharType>
 	void BasicString<CharType>::Append(const BasicString& other)
 	{
-		if (other.IsHeapBuffer())
-			Append(other.m_buffer.Heap.Buffer, other.m_buffer.Heap.Size);
-		else
-			Append(other.m_buffer.Stack.Buffer, other.m_buffer.Stack.Size);
+		Append(other.Buffer(), other.Size());
 	}
 
 	template <typename CharType>
@@ -794,13 +755,13 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::Append(const CharType* str, usize len)
+	void BasicString<CharType>::Append(const CharType* str, Usize len)
 	{
 		if (len == 0)
 			return;
 
 		ReserveExtra(len);
-		usize size = Size();
+		Usize size = Size();
 		CharType* buffer = Buffer();
 		memcpy(buffer + size, str, len);
 
@@ -808,7 +769,30 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::Append(CharType ch, usize count)
+	void BasicString<CharType>::Append(CharType ch)
+	{
+		if (m_size < m_capacity)
+		{
+			CharType* buffer = Buffer();
+
+			buffer[m_size] = ch;
+			m_size += 1;
+			buffer[m_size] = CharType();
+
+			return;
+		}
+
+		ReserveExtra(1);
+
+		CharType* buffer = Buffer();
+
+		buffer[m_size] = CharType();
+		m_size += 1;
+		buffer[m_size] = CharType();
+	}
+
+	template <typename CharType>
+	void BasicString<CharType>::Append(CharType ch, Usize count)
 	{
 		if (count == 0)
 			return;
@@ -816,11 +800,12 @@ namespace PenFramework::PenEngine
 		ReserveExtra(count);
 
 		CharType* buffer = Buffer();
-		usize size = Size();
-		for (usize i = size; i < size + count; ++i)
-			buffer[i] = ch;
+		Usize size = Size();
 
-		ResetSizeAndEos(size + count);
+		CharTraits::assign(buffer + size, count, ch);
+
+		m_size += count;
+		buffer[m_size] = CharType();
 	}
 
 	template <typename CharType>
@@ -835,9 +820,50 @@ namespace PenFramework::PenEngine
 		Append(str.data(), str.size());
 	}
 
+	template <typename CharType>
+	BasicString<CharType>::Iterator BasicString<CharType>::Remove(Usize off) noexcept
+	{
+		DEBUG_VERIFY_REPORT(off < Size(), "Invalid Position")
+			ResetSizeAndEos(off);
+		return Begin();
+	}
+
+	template <typename CharType>
+	BasicString<CharType>::Iterator BasicString<CharType>::Remove(ConstIterator it, Usize count)
+	{
+		DEBUG_VERIFY_REPORT(it.m_ptr == Buffer(), "String iterator incompatible")
+			Usize off = static_cast<Usize>(it.m_ptr - Data());
+		DEBUG_VERIFY_REPORT(off < Size(), "Invalid Position")
+			InternalRemove(off, count);
+		return Begin() + off;
+	}
+
+	template <typename CharType>
+	BasicString<CharType>::Iterator BasicString<CharType>::Remove(ConstIterator begin, ConstIterator end)
+	{
+		DEBUG_VERIFY_REPORT(begin.m_ptr == Buffer(), "String iterator incompatible")
+			DEBUG_VERIFY_REPORT(end.m_ptr == Buffer(), "String iterator incompatible")
+
+			Usize off = static_cast<Usize>(begin.m_ptr - Data());
+		DEBUG_VERIFY_REPORT(off < Size(), "Invalid Position")
+			Usize len = end - begin;
+		InternalRemove(off, len);
+
+		return Begin() + off;
+	}
+
+	template <typename CharType>
+	BasicString<CharType>::Iterator BasicString<CharType>::Remove(CharType ch, Usize off)
+	{
+		Usize begin = Find(ch, off);
+		if (begin != NPos)
+			InternalRemove(begin, 1);
+		return Begin() + begin;
+	}
+
 	template<typename CharType>
 	template<typename SourceCharType>
-	BasicString<CharType>::BasicString(const SourceCharType* str, usize length, boost::locale::conv::method_type how)
+	BasicString<CharType>::BasicString(const SourceCharType* str, Usize length, boost::locale::conv::method_type how)
 	{
 		InitSSOBuffer();
 		ConvertAndAppend(str, length, how);
@@ -859,14 +885,31 @@ namespace PenFramework::PenEngine
 
 	template <typename CharType>
 	template <typename SourceCharType>
-	void BasicString<CharType>::ConvertAndAppend(const SourceCharType* str, usize len, boost::locale::conv::method_type how)
+	void BasicString<CharType>::ConvertAndAppend(const SourceCharType* str, Usize len, boost::locale::conv::method_type how)
 	{
 		if (str == nullptr || len == 0)
 			return;
 
-		std::basic_string<CharType> tmp = boost::locale::conv::utf_to_utf<CharType>(str, str + len, how);
+		auto begin = str;
+		auto end = str + len;
 
-		Append(tmp);
+		BasicString result;
+		result.Reserve(len);
+		auto inserter = BackInserter(result);
+		while (begin != end) {
+			const boost::locale::utf::code_point c = boost::locale::utf::utf_traits<SourceCharType>::decode(begin, end);
+			if (c == boost::locale::utf::illegal || c == boost::locale::utf::incomplete) {
+				if (how == boost::locale::conv::method_type::stop)
+					throw boost::locale::conv::conversion_error();
+			}
+			else
+			{
+				boost::locale::utf::utf_traits<CharType>::encode(c, inserter);
+			}
+
+		}
+
+		Append(result);
 	}
 
 	template <typename CharType>
@@ -911,15 +954,21 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::PushBack(const CharType* str, usize len)
+	void BasicString<CharType>::PushBack(const CharType* str, Usize len)
 	{
 		Append(str, len);
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::PushBack(CharType ch, usize count)
+	void BasicString<CharType>::PushBack(CharType ch, Usize count)
 	{
 		Append(ch, count);
+	}
+
+	template <typename CharType>
+	void BasicString<CharType>::PushBack(CharType ch)
+	{
+		Append(ch);
 	}
 
 	template <typename CharType>
@@ -950,7 +999,7 @@ namespace PenFramework::PenEngine
 
 	template <typename CharType>
 	template <typename SourceCharType>
-	void BasicString<CharType>::ConvertAndPushBack(const SourceCharType* str, usize len, boost::locale::conv::method_type how)
+	void BasicString<CharType>::ConvertAndPushBack(const SourceCharType* str, Usize len, boost::locale::conv::method_type how)
 	{
 		ConvertAndAppend(str, len, how);
 	}
@@ -972,10 +1021,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	void BasicString<CharType>::PushFront(const BasicString& other)
 	{
-		if (other.IsHeapBuffer())
-			PushFront(other.m_buffer.Heap.Buffer, other.m_buffer.Heap.Size);
-		else
-			PushFront(other.m_buffer.Stack.Buffer, other.m_buffer.Stack.Size);
+		PushFront(other.Data(), other.Size());
 	}
 
 	template <typename CharType>
@@ -985,7 +1031,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::PushFront(const CharType* str, usize len)
+	void BasicString<CharType>::PushFront(const CharType* str, Usize len)
 	{
 		if (str == nullptr || len == 0)
 			return;
@@ -993,7 +1039,7 @@ namespace PenFramework::PenEngine
 		ReserveExtra(len);
 
 		CharType* buffer = Buffer();
-		usize size = Size();
+		Usize size = Size();
 
 		std::copy_backward(buffer, buffer + size, buffer + size + len);
 
@@ -1003,7 +1049,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::PushFront(CharType ch, usize count)
+	void BasicString<CharType>::PushFront(CharType ch, Usize count)
 	{
 		if (count == 0)
 			return;
@@ -1011,14 +1057,13 @@ namespace PenFramework::PenEngine
 		ReserveExtra(count);
 
 		CharType* buffer = Buffer();
-		usize size = Size();
+		Usize size = Size();
 
 		std::copy_backward(buffer, buffer + size, buffer + size + count);
 
-		for (usize i = 0; i < count; ++i)
-			buffer[i] = ch;
-
-		ResetSizeAndEos(size + count);
+		m_size += count;
+		CharTraits::assign(buffer, count, ch);
+		buffer[m_size] = CharType();
 	}
 
 	template <typename CharType>
@@ -1049,13 +1094,13 @@ namespace PenFramework::PenEngine
 
 	template <typename CharType>
 	template <typename SourceCharType>
-	void BasicString<CharType>::ConvertAndPushFront(const SourceCharType* str, usize len, boost::locale::conv::method_type how)
+	void BasicString<CharType>::ConvertAndPushFront(const SourceCharType* str, Usize len, boost::locale::conv::method_type how)
 	{
 		// 预先处理
 		if (str == nullptr || len == 0)
 			return;
 
-		usize requiredLength = 0;
+		Usize requiredLength = 0;
 
 		const SourceCharType* currentStartPosition = str;
 		const SourceCharType* endPosition = str + len;
@@ -1077,7 +1122,7 @@ namespace PenFramework::PenEngine
 
 		// 移动原串
 		CharType* buffer = Buffer();
-		usize size = Size();
+		Usize size = Size();
 
 		std::copy_backward(buffer, buffer + size, buffer + size + requiredLength);
 
@@ -1093,11 +1138,6 @@ namespace PenFramework::PenEngine
 
 		// 设置大小与\0结尾符位置为新的长度
 		ResetSizeAndEos(size + requiredLength);
-
-		// TODO: 这个地方需要一次Benchmark，以判断是临时缓冲区性能更高，还是双循环性能更高
-		//BasicString tmp(str, len, how);
-		//tmp.Append(*this);
-		//*this = std::move(tmp);
 	}
 
 	template <typename CharType>
@@ -1115,59 +1155,58 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	template <typename SourceCharType>
-	void BasicString<CharType>::ConvertAndPushFrontB(const SourceCharType* str, usize len,
-													 boost::locale::conv::method_type how)
+	template <typename TargetCharType>
+	BasicString<TargetCharType> BasicString<CharType>::ConvertTo(boost::locale::conv::method_type how)
 	{
-		BasicString tmp(str, len, how);
-		tmp.Append(*this);
-		*this = std::move(tmp);
+		BasicString<TargetCharType> res;
+		res.ConvertAndAppend(*this, how);
+		return *this;
 	}
 
 	template <typename CharType>
 	template <typename T> requires (std::is_arithmetic_v<T> && !std::is_same_v<T, CharType>)
 		void BasicString<CharType>::Append(T v)
 	{
-		constexpr usize bufferLength = std::numeric_limits<T>::digits10 + 2;
+		constexpr Usize bufferLength = std::numeric_limits<T>::digits10 + 2;
 		char buffer[bufferLength] = {};
 		auto [ec, ptr] = std::to_chars(buffer, bufferLength, v);
 
 		DEBUG_VERIFY_REPORT(ec == std::errc(), "buffer length must be large enough to accomodate the value")
-			Append(buffer, static_cast<usize>(ptr - buffer));
+			Append(buffer, static_cast<Usize>(ptr - buffer));
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(CharType ch, usize off) const noexcept
+	bool BasicString<CharType>::Contain(CharType ch, Usize off) const noexcept
 	{
 		return Find(ch, off) != NPos;
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(const BasicString& other, usize off) const noexcept
+	bool BasicString<CharType>::Contain(const BasicString& other, Usize off) const noexcept
 	{
 		return Find(other, off) != NPos;
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(const CharType* str, usize off) const noexcept
+	bool BasicString<CharType>::Contain(const CharType* str, Usize off) const noexcept
 	{
 		return Find(str, off) != NPos;
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(const CharType* str, usize off, usize len) const noexcept
+	bool BasicString<CharType>::Contain(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return Find(str, off, len) != NPos;
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(const std::basic_string<CharType>& str, usize off) const noexcept
+	bool BasicString<CharType>::Contain(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return Find(str, off) != NPos;
 	}
 
 	template <typename CharType>
-	bool BasicString<CharType>::Contain(std::basic_string_view<CharType> str, usize off) const noexcept
+	bool BasicString<CharType>::Contain(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return Find(str, off) != NPos;
 	}
@@ -1329,232 +1368,224 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::reference BasicString<CharType>::operator[](usize pos) noexcept
+	BasicString<CharType>::reference BasicString<CharType>::operator[](Usize pos) noexcept
 	{
 		DEBUG_VERIFY_REPORT(pos < Size(), "string subscription out of range")
 			return Buffer()[pos];
 	}
 
 	template <typename CharType>
-	BasicString<CharType>::const_reference BasicString<CharType>::operator[](usize pos) const noexcept
+	BasicString<CharType>::const_reference BasicString<CharType>::operator[](Usize pos) const noexcept
 	{
 		DEBUG_VERIFY_REPORT(pos < Size(), "string subscription out of range")
 			return Buffer()[pos];
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(CharType ch, usize off) const noexcept
+	Usize BasicString<CharType>::Find(CharType ch, Usize off) const noexcept
 	{
 		return ChFind(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(const BasicString& other, usize off) const noexcept
+	Usize BasicString<CharType>::Find(const BasicString& other, Usize off) const noexcept
 	{
 		return Find(other.Data(), off, other.Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(const CharType* str, usize off) const noexcept
+	Usize BasicString<CharType>::Find(const CharType* str, Usize off) const noexcept
 	{
 		return Find(str, off, CharTraits::length(str));
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(const CharType* str, usize off, usize len) const noexcept
+	Usize BasicString<CharType>::Find(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return StrFind(str, off, len, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(const std::basic_string<CharType>& str, usize off) const noexcept
+	Usize BasicString<CharType>::Find(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return Find(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::Find(std::basic_string_view<CharType> str, usize off) const noexcept
+	Usize BasicString<CharType>::Find(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return Find(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(CharType ch, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(CharType ch, Usize off) const noexcept
 	{
 		return ChFindFirstOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(const BasicString& other, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(const BasicString& other, Usize off) const noexcept
 	{
 		return FindFirstOf(other.Data(), off, other.Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(const CharType* str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(const CharType* str, Usize off) const noexcept
 	{
 		return FindFirstOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(const CharType* str, usize off, usize len) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return StrFindFirstOf(str, off, len, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return FindFirstOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return FindFirstOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(CharType ch, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(CharType ch, Usize off) const noexcept
 	{
 		return ChFindLastOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(const BasicString& other, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(const BasicString& other, Usize off) const noexcept
 	{
 		return FindLastOf(other.Data(), off, other.Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(const CharType* str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(const CharType* str, Usize off) const noexcept
 	{
 		return FindLastOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(const CharType* str, usize off, usize len) const noexcept
+	Usize BasicString<CharType>::FindLastOf(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return StrFindLastOf(str, off, len, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return FindLastOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return FindLastOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(CharType ch, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(CharType ch, Usize off) const noexcept
 	{
 		return ChFindFirstNotOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(const BasicString& other, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(const BasicString& other, Usize off) const noexcept
 	{
 		return FindFirstNotOf(other.Data(), off, other.Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(const CharType* str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(const CharType* str, Usize off) const noexcept
 	{
 		return FindFirstNotOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(const CharType* str, usize off, usize len) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return StrFindFirstNotOf(str, off, len, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return FindFirstNotOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindFirstNotOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return FindFirstNotOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(CharType ch, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(CharType ch, Usize off) const noexcept
 	{
 		return ChFindLastNotOf(ch, off, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(const BasicString& other, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(const BasicString& other, Usize off) const noexcept
 	{
 		return FindLastNotOf(other.Data(), off, other.Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(const CharType* str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(const CharType* str, Usize off) const noexcept
 	{
 		return FindLastNotOf(str, off, CharTraits::length(str));
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(const CharType* str, usize off, usize len) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(const CharType* str, Usize off, Usize len) const noexcept
 	{
 		return StrFindLastNotOf(str, off, len, Data(), Size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(const std::basic_string<CharType>& str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(const std::basic_string<CharType>& str, Usize off) const noexcept
 	{
 		return FindLastNotOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::FindLastNotOf(std::basic_string_view<CharType> str, usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(std::basic_string_view<CharType> str, Usize off) const noexcept
 	{
 		return FindLastNotOf(str.data(), off, str.size());
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::ResetSizeAndEos(usize size) noexcept
+	void BasicString<CharType>::ResetSizeAndEos(Usize size) noexcept
 	{
-		if (IsHeapBuffer())
-		{
-			m_buffer.Heap.Size = size;
-			m_buffer.Heap.Buffer[size] = CharType();
-		}
-		else
-		{
-			DEBUG_VERIFY_REPORT(size <= LocalStorageCapacity, "Size exceeds local storage capacity");
-			m_buffer.Stack.Size = size;
-			m_buffer.Stack.Buffer[size] = CharType();
-		}
+		DEBUG_VERIFY_REPORT(size <= m_capacity, "Size exceeds storage capacity")
+			m_size = size;
+		Buffer()[size] = CharType();
 	}
 
 	template <typename CharType>
 	CharType* BasicString<CharType>::Buffer() noexcept
 	{
-		return IsHeapBuffer() ? m_buffer.Heap.Buffer : m_buffer.Stack.Buffer;
+		return IsHeapBuffer() ? m_buffer.Heap : m_buffer.Stack;
 	}
 
 	template <typename CharType>
 	const CharType* BasicString<CharType>::Buffer() const noexcept
 	{
-		return IsHeapBuffer() ? m_buffer.Heap.Buffer : m_buffer.Stack.Buffer;
+		return IsHeapBuffer() ? m_buffer.Heap : m_buffer.Stack;
 	}
 
 	template <typename CharType>
-	usize BasicString<CharType>::CalculateAllocateCapacity(usize requestCapacity, usize currentCapacity,
-														   usize maxCapacity) noexcept
+	Usize BasicString<CharType>::CalculateAllocateCapacity(Usize requestCapacity, Usize currentCapacity,
+														   Usize maxCapacity) noexcept
 	{
-		usize masked = requestCapacity | AllocateMask;
+		Usize masked = requestCapacity | AllocateMask;
 		if (masked > maxCapacity)
 			return maxCapacity;
 
@@ -1565,44 +1596,44 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::ReallocateHeapBuffer(usize capacity)
+	void BasicString<CharType>::ReallocateHeapBuffer(Usize capacity)
 	{
-		ReallocateHeapBufferByCapacity(CalculateAllocateCapacity(capacity, m_buffer.Heap.Capacity, MaxStorageCapacity));
+		ReallocateHeapBufferByCapacity(CalculateAllocateCapacity(capacity, m_capacity, MaxStorageCapacity));
 	}
 
 	template<typename CharType>
-	inline void BasicString<CharType>::ReallocateHeapBufferByCapacity(usize capacity)
+	void BasicString<CharType>::ReallocateHeapBufferByCapacity(Usize capacity)
 	{
 		CharType* newBuffer = Memory::Allocate<CharType>(capacity + 1);
 
-		if (m_buffer.Heap.Size > 0)
-			memcpy(newBuffer, m_buffer.Heap.Buffer, m_buffer.Heap.Size * sizeof(CharType));
+		// 不需要m_size > 0判断，memcpy会检查，并且就算为0并且触发了复制，其也不会造成副作用，因为m_buffer.Heap是有效的
+		CharTraits::copy(newBuffer, m_buffer.Heap, m_size);
 
-		Memory::Deallocate(m_buffer.Heap.Buffer, m_buffer.Heap.Capacity + 1);
+		Memory::Deallocate(m_buffer.Heap, m_capacity + 1);
 
-		m_buffer.Heap.Buffer = newBuffer;
-		m_buffer.Heap.Capacity = capacity;
-		m_buffer.Heap.Buffer[m_buffer.Heap.Size] = CharType();
+		m_buffer.Heap = newBuffer;
+		m_capacity = capacity;
+		m_buffer.Heap[m_size] = CharType();
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::CleanAndReBuild(const CharType* str, usize len)
+	void BasicString<CharType>::CleanAndReBuild(const CharType* str, Usize len)
 	{
 		DeallocateBuffer();
 
 		if (len <= LocalStorageCapacity)
 		{
 			InitSSOBuffer();
-			memcpy(m_buffer.Stack.Buffer, str, len * sizeof(CharType));
-			m_buffer.Stack.Size = len;
-			m_buffer.Stack.Buffer[len] = CharType();
+			CharTraits::copy(m_buffer.Stack, str, len);
+			m_size = len;
+			m_buffer.Stack[m_size] = CharType();
 		}
 		else
 		{
 			InitHeapBuffer(len);
-			memcpy(m_buffer.Heap.Buffer, str, len * sizeof(CharType));
-			m_buffer.Heap.Size = len;
-			m_buffer.Heap.Buffer[len] = CharType();
+			CharTraits::copy(m_buffer.Heap, str, len);
+			m_size = len;
+			m_buffer.Heap[m_size] = CharType();
 		}
 	}
 
@@ -1610,83 +1641,90 @@ namespace PenFramework::PenEngine
 	void BasicString<CharType>::DeallocateBuffer() noexcept
 	{
 		if (IsHeapBuffer())
-			Memory::Deallocate(m_buffer.Heap.Buffer, m_buffer.Heap.Capacity + 1);
+			Memory::Deallocate(m_buffer.Heap, m_capacity + 1);
 		InitSSOBuffer();
+	}
+
+	template <typename CharType>
+	void BasicString<CharType>::InternalRemove(Usize off, Usize count) noexcept
+	{
+		Usize oldSize = Size();
+
+		CharType* buffer = Buffer();
+
+		count = std::min(count, oldSize - off);
+
+		CharType* startPosition = buffer + off;
+		Usize newSize = oldSize - count;
+
+		CharTraits::move(startPosition, startPosition + count, newSize - off + 1);
+
+		m_size = newSize;
+		buffer[newSize] = CharType();
 	}
 
 	template <typename CharType>
 	void BasicString<CharType>::InitSSOBuffer() noexcept
 	{
-		m_buffer.Stack.IsHeapBuffer = false;
-		m_buffer.Stack.Size = 0;
-		m_buffer.Stack.Buffer[0] = CharType();
+		m_capacity = LocalStorageCapacity;
+		m_size = 0;
+		m_buffer.Stack[0] = CharType();
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::InitHeapBuffer(usize capacity)
+	void BasicString<CharType>::InitHeapBuffer(Usize capacity)
 	{
 		capacity = CalculateAllocateCapacity(capacity, LocalStorageCapacity, MaxStorageCapacity);
 
 		CharType* buffer = Memory::Allocate<CharType>(capacity + 1);
 
-		m_buffer.Heap.IsHeapBuffer = true;
-		m_buffer.Heap.Size = 0;
-		m_buffer.Heap.Capacity = capacity;
-		m_buffer.Heap.Buffer = buffer;
-		m_buffer.Heap.Buffer[0] = CharType();
+		m_size = 0;
+		m_capacity = capacity;
+		m_buffer.Heap = buffer;
+		m_buffer.Heap[0] = CharType();
 	}
 
 	template <typename CharType>
 	bool BasicString<CharType>::IsHeapBuffer() const noexcept
 	{
-		return m_buffer.Stack.IsHeapBuffer;
+		return m_capacity > LocalStorageCapacity;
 	}
 
 	template <typename CharType>
 	void BasicString<CharType>::MoveToStack() noexcept
 	{
-		// 这一步对heapSize的检查应该在调用前进行，这里不做防御性检查
-		usize heapSize = m_buffer.Heap.Size;
-		usize heapCapacity = m_buffer.Heap.Capacity;
-
-		CharType* heapBuffer = m_buffer.Heap.Buffer;
+		// 这一步对m_size的检查应该在调用前进行，这里不做防御性检查
+		CharType* heapBuffer = m_buffer.Heap;
 
 		// 如果需要constexpr路径，需要先初始化StackBuffer
-		// InitSSOBuffer();
+		// 并且InitSSOBuffer()需要在if consteval路径下构造每个元素
 
-		if (heapSize > 0)
-			memcpy(m_buffer.Stack.Buffer, heapBuffer, heapSize * sizeof(CharType));
+		CharTraits::copy(m_buffer.Stack, heapBuffer, m_size);
 
-		Memory::Deallocate(heapBuffer, heapCapacity + 1);
+		Memory::Deallocate(heapBuffer, m_capacity + 1);
 
-		m_buffer.Stack.IsHeapBuffer = false;
-		m_buffer.Stack.Size = heapSize;
+		m_capacity = LocalStorageCapacity;
 
 		// 可以通过在memcpy中复制size + 1个元素来复制结尾符，但是为了规范性，仍然采用手动设置结尾符
-		m_buffer.Stack.Buffer[heapSize] = CharType();
+		m_buffer.Stack[m_size] = CharType();
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::MoveToHeap(usize capacity)
+	void BasicString<CharType>::MoveToHeap(Usize capacity)
 	{
 		capacity = CalculateAllocateCapacity(capacity, LocalStorageCapacity, MaxStorageCapacity);
 
 		// Allocate不会构造对象，但是CharType是一个POD的字符类型，所以不需要构造函数
-		// 如果后续需要设计constexpr路径，则需要在if consteval路径下构造每个元素
+		// @todo 对于将来可能得constexpr路径，需要在if consteval路径下构造每个元素
 		CharType* buffer = Memory::Allocate<CharType>(capacity + 1);
 
-		usize size = m_buffer.Stack.Size;
+		CharTraits::copy(buffer, m_buffer.Stack, m_size);
 
-		if (size > 0)
-			memcpy(buffer, m_buffer.Stack.Buffer, size * sizeof(CharType));
-
-		m_buffer.Heap.IsHeapBuffer = true;
-		m_buffer.Heap.Size = size;
-		m_buffer.Heap.Capacity = capacity;
-		m_buffer.Heap.Buffer = buffer;
+		m_capacity = capacity;
+		m_buffer.Heap = buffer;
 
 		// 可以通过在memcpy中复制size + 1个元素来复制结尾符，但是为了规范性，仍然采用手动设置结尾符
-		m_buffer.Heap.Buffer[size] = CharType();
+		m_buffer.Heap[m_size] = CharType();
 	}
 }
 
@@ -1702,7 +1740,7 @@ struct std::formatter<PenFramework::PenEngine::String> : std::formatter<std::str
 template <typename CharType>
 struct std::hash<PenFramework::PenEngine::BasicString<CharType>>
 {
-	static PenFramework::PenEngine::usize operator()(const PenFramework::PenEngine::BasicString<CharType>& str) noexcept
+	static PenFramework::PenEngine::Usize operator()(const PenFramework::PenEngine::BasicString<CharType>& str) noexcept
 	{
 		return std::hash<std::string_view>::operator()(std::string_view(str.Data(), str.Size()));
 	}

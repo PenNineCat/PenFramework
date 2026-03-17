@@ -150,12 +150,12 @@ namespace PenFramework::PenEngine
         /// @brief 下标访问（非 const 版本）
         /// @param index 索引（0 表示 X，1 表示 Y）
         /// @exception std::out_of_range 若 index > 1，则抛出该错误
-        float& operator[](i32 index);
+        float& operator[](I32 index);
 
         /// @brief 下标访问（const 版本）
         /// @param index 索引（0 表示 X，1 表示 Y）
 		/// @exception std::out_of_range 若 index > 1，则抛出该错误
-        const float& operator[](i32 index) const;
+        const float& operator[](I32 index) const;
 
         /// @brief 判断是否为零向量
         [[nodiscard]] constexpr bool IsZero() const noexcept;
@@ -285,7 +285,7 @@ namespace PenFramework::PenEngine
 		return *this;
 	}
 
-	inline float& Vec2::operator[](i32 index)
+	inline float& Vec2::operator[](I32 index)
 	{
 		switch (index)
 		{
@@ -298,7 +298,7 @@ namespace PenFramework::PenEngine
 		}
 	}
 
-	inline const float& Vec2::operator[](i32 index) const
+	inline const float& Vec2::operator[](I32 index) const
 	{
 		switch (index)
 		{

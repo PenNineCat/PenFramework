@@ -34,6 +34,30 @@
     <Filter Include="Code\Engine\Math">
       <UniqueIdentifier>{e79e1ed7-4a10-4443-9367-6fb4f36bc425}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Engine\Objects">
+      <UniqueIdentifier>{214f1598-aaf8-46d8-b5b2-803590ecd6cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\RenderPlatform">
+      <UniqueIdentifier>{c4766fcf-cfe5-41f4-808d-5379376eba7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\IO">
+      <UniqueIdentifier>{76f483c7-ac39-4781-a70b-33fb1d77ad2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\CoreApplication">
+      <UniqueIdentifier>{84dedc26-731a-4af7-810d-dfb3d91ca153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\Environment">
+      <UniqueIdentifier>{928d2edc-26d4-4297-a52d-bb04bb6a6e53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\Coroutine">
+      <UniqueIdentifier>{8bc71757-636c-4218-8f29-2f7192e22bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\IO\Hardware">
+      <UniqueIdentifier>{6f942459-27c9-4ff3-881e-4ff85e7f0396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Engine\IO\Internal">
+      <UniqueIdentifier>{24695ee7-9c07-47fe-a6f1-aee5b47abd4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -45,12 +69,30 @@
     <ClCompile Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.cpp">
       <Filter>Code\UnitTest\BasicOutputInterface</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Engine\Objects\WorldObject.cpp">
+      <Filter>Code\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\Objects\PObject.cpp">
+      <Filter>Code\Engine\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\CoreApplication\CoreApplication.cpp">
+      <Filter>Code\Engine\CoreApplication</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\IO\Hardware\FileDevice.cpp">
+      <Filter>Code\Engine\IO\Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\IO\URI.cpp">
+      <Filter>Code\Engine\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\IO\Path.cpp">
+      <Filter>Code\Engine\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\IO\Internal\PathAnalyzer.cpp">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine\Common\Type.hpp">
-      <Filter>Code\Engine\Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Engine\Common\Iterator.hpp">
       <Filter>Code\Engine\Common</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\DebugTools\Verify.hpp">
@@ -95,7 +137,7 @@
     <ClInclude Include="Code\Engine\String\StrSearchUtils.hpp">
       <Filter>Code\Engine\String</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\String\Fromat.hpp">
+    <ClInclude Include="Code\Engine\String\Format.hpp">
       <Filter>Code\Engine\String</Filter>
     </ClInclude>
     <ClInclude Include="Code\UnitTest\UnitTestFramework.h">
@@ -119,13 +161,13 @@
     <ClInclude Include="Code\Engine\Utils\Ranges.hpp">
       <Filter>Code\Engine\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\Math\Vec4x4.hpp">
+    <ClInclude Include="Code\Engine\Math\Mat4x4.hpp">
       <Filter>Code\Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\Math\Vec4.hpp">
       <Filter>Code\Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\Math\Vec3x3.hpp">
+    <ClInclude Include="Code\Engine\Math\Mat3x3.hpp">
       <Filter>Code\Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\Math\Vec3.hpp">
@@ -151,6 +193,54 @@
     </ClInclude>
     <ClInclude Include="Code\UnitTest\Tests\Test_Vec2.hpp">
       <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Objects\PObject.h">
+      <Filter>Code\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Objects\WorldObject.h">
+      <Filter>Code\Engine\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\CoreApplication\CoreApplication.h">
+      <Filter>Code\Engine\CoreApplication</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Environment\DXEnvironment.h">
+      <Filter>Code\Engine\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Environment\Win32Environment.h">
+      <Filter>Code\Engine\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\IAsyncIODevice.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\IInputStream.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\IOutputStream.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\IStreamIODevice.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\IIODevice.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Coroutine\Awaitable.hpp">
+      <Filter>Code\Engine\Coroutine</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\Hardware\FileDevice.h">
+      <Filter>Code\Engine\IO\Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\URI.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\Path.h">
+      <Filter>Code\Engine\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\Internal\PathAnalyzer.h">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Common\Iterator.hpp">
+      <Filter>Code\Engine\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

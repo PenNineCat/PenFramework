@@ -1,4 +1,4 @@
-// File /Engine/Math/Vec4x4.hpp
+// File /Engine/Math/Mat4x4.hpp
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -15,7 +15,7 @@
 
 namespace PenFramework::PenEngine
 {
-	struct alignas(16) Vec4x4
+	struct alignas(16) Mat4x4
 	{
 		union
 		{
@@ -24,33 +24,33 @@ namespace PenFramework::PenEngine
 			Vec4 Row[4];
 		};
 
-		constexpr Vec4x4() noexcept
+		constexpr Mat4x4() noexcept
 		{
 			std::fill_n(std::begin(Data), 16, 0.0f);
 		}
-		constexpr explicit Vec4x4(float v) noexcept
+		constexpr explicit Mat4x4(float v) noexcept
 		{
 			std::fill_n(std::begin(Data), 16, v);
 		}
 
-		constexpr static Vec4x4 Zero() noexcept;
+		constexpr static Mat4x4 Zero() noexcept;
 
-		constexpr static Vec4x4 Identity() noexcept;
+		constexpr static Mat4x4 Identity() noexcept;
 		constexpr void ToIdentity() noexcept;
 		constexpr bool IsIdentity() const noexcept;
 
-		friend constexpr Vec4x4 operator+(Vec4x4 l, const Vec4x4& r) noexcept
+		friend constexpr Mat4x4 operator+(Mat4x4 l, const Mat4x4& r) noexcept
 		{
-			for (usize i : std::ranges::views::iota(0, 9))
+			for (Usize i : std::ranges::views::iota(0, 9))
 			{
 				l.Data[i] += r.Data[i];
 			}
 
 			return l;
 		}
-		friend constexpr Vec4x4 operator-(Vec4x4 l, const Vec4x4& r) noexcept
+		friend constexpr Mat4x4 operator-(Mat4x4 l, const Mat4x4& r) noexcept
 		{
-			for (usize i : std::ranges::views::iota(0, 9))
+			for (Usize i : std::ranges::views::iota(0, 9))
 			{
 				l.Data[i] += r.Data[i];
 			}
@@ -58,21 +58,21 @@ namespace PenFramework::PenEngine
 			return l;
 		}
 
-		constexpr Vec4x4& operator+=(const Vec4x4& v) noexcept;
-		constexpr Vec4x4& operator-=(const Vec4x4& v) noexcept;
+		constexpr Mat4x4& operator+=(const Mat4x4& v) noexcept;
+		constexpr Mat4x4& operator-=(const Mat4x4& v) noexcept;
 
-		friend constexpr Vec4x4 operator*(Vec4x4 l, const Vec4x4& r) noexcept
+		friend constexpr Mat4x4 operator*(Mat4x4 l, const Mat4x4& r) noexcept
 		{
-			for (usize i : std::ranges::views::iota(0, 9))
+			for (Usize i : std::ranges::views::iota(0, 9))
 			{
 				l.Data[i] *= r.Data[i];
 			}
 
 			return l;
 		}
-		friend constexpr Vec4x4 operator*(Vec4x4 l, float v) noexcept
+		friend constexpr Mat4x4 operator*(Mat4x4 l, float v) noexcept
 		{
-			for (usize i : std::ranges::views::iota(0, 9))
+			for (Usize i : std::ranges::views::iota(0, 9))
 			{
 				l.Data[i] *= v;
 			}
@@ -80,23 +80,23 @@ namespace PenFramework::PenEngine
 			return l;
 		}
 
-		constexpr Vec4x4& operator*=(const Vec4x4& v) noexcept;
-		constexpr Vec4x4& operator*=(float v) noexcept;
+		constexpr Mat4x4& operator*=(const Mat4x4& v) noexcept;
+		constexpr Mat4x4& operator*=(float v) noexcept;
 	};
 
-	constexpr Vec4x4 Vec4x4::Zero() noexcept
+	constexpr Mat4x4 Mat4x4::Zero() noexcept
 	{
-		return Vec4x4();
+		return Mat4x4();
 	}
 
-	constexpr Vec4x4 Vec4x4::Identity() noexcept
+	constexpr Mat4x4 Mat4x4::Identity() noexcept
 	{
-		Vec4x4 res;
+		Mat4x4 res;
 		res.ToIdentity();
 		return res;
 	}
 
-	constexpr void Vec4x4::ToIdentity() noexcept
+	constexpr void Mat4x4::ToIdentity() noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), 3u))
 			for (u8 j : std::ranges::views::iota(static_cast<u8>(0u), 3u))
@@ -106,7 +106,7 @@ namespace PenFramework::PenEngine
 					M[i][j] = 0.0f;
 	}
 
-	constexpr bool Vec4x4::IsIdentity() const noexcept
+	constexpr bool Mat4x4::IsIdentity() const noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), 3u))
 			for (u8 j : std::ranges::views::iota(static_cast<u8>(0u), 3u))
@@ -124,7 +124,7 @@ namespace PenFramework::PenEngine
 		return true;
 	}
 
-	constexpr Vec4x4& Vec4x4::operator+=(const Vec4x4& v) noexcept
+	constexpr Mat4x4& Mat4x4::operator+=(const Mat4x4& v) noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), 16u))
 		{
@@ -134,7 +134,7 @@ namespace PenFramework::PenEngine
 		return *this;
 	}
 
-	constexpr Vec4x4& Vec4x4::operator-=(const Vec4x4& v) noexcept
+	constexpr Mat4x4& Mat4x4::operator-=(const Mat4x4& v) noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), 16u))
 		{
@@ -144,7 +144,7 @@ namespace PenFramework::PenEngine
 		return *this;
 	}
 
-	constexpr Vec4x4& Vec4x4::operator*=(const Vec4x4& v) noexcept
+	constexpr Mat4x4& Mat4x4::operator*=(const Mat4x4& v) noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), 16u))
 		{
@@ -154,7 +154,7 @@ namespace PenFramework::PenEngine
 		return *this;
 	}
 
-	constexpr Vec4x4& Vec4x4::operator*=(float v) noexcept
+	constexpr Mat4x4& Mat4x4::operator*=(float v) noexcept
 	{
 		for (u8 i : std::ranges::views::iota(static_cast<u8>(0u), static_cast<u8>(9u)))
 		{

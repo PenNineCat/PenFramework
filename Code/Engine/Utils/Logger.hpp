@@ -27,8 +27,8 @@ namespace PenFramework::PenEngine
 		struct LoggerConfiguration
 		{
 			std::string_view FileName;
-			usize MaxFileSize;
-			usize MaxFileCapacity;
+			Usize MaxFileSize;
+			Usize MaxFileCapacity;
 			std::vector<std::shared_ptr<spdlog::sinks::sink>> AdditionalSink;
 		};
 		Logger() noexcept = default;

@@ -82,8 +82,8 @@ namespace PenFramework::PenEngine
 			return NearAbs(l.X, r.X) && NearAbs(l.Y, r.Y) && NearAbs(l.Z, r.Z);
 		}
 
-		float& operator[](u8 index);
-		const float& operator[](u8 index) const;
+		float& operator[](U8 index);
+		const float& operator[](U8 index) const;
 
 		[[nodiscard]] constexpr bool IsZero() const noexcept;
 		[[nodiscard]] constexpr bool IsNearZero(float epsilon = MathEpsilon) const noexcept;
@@ -191,7 +191,7 @@ namespace PenFramework::PenEngine
 		return *this;
 	}
 
-	inline float& Vec3::operator[](u8 index)
+	inline float& Vec3::operator[](U8 index)
 	{
 		switch (index)
 		{
@@ -206,7 +206,7 @@ namespace PenFramework::PenEngine
 		}
 	}
 
-	inline const float& Vec3::operator[](u8 index) const
+	inline const float& Vec3::operator[](U8 index) const
 	{
 		switch (index)
 		{

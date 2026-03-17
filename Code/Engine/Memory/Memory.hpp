@@ -15,10 +15,10 @@
 
 namespace PenFramework::PenEngine::Memory
 {
-	static std::atomic<usize> g_currentMemoryAllocatedBytes;
+	static std::atomic<Usize> g_currentMemoryAllocatedBytes;
 
 	template <typename T>
-	static T* Allocate(usize count)
+	static T* Allocate(Usize count)
 	{
 		#ifdef _DEBUG
 		g_currentMemoryAllocatedBytes.fetch_add(count * sizeof(T), std::memory_order::relaxed);
@@ -28,7 +28,7 @@ namespace PenFramework::PenEngine::Memory
 	}
 
 	template <typename T>
-	static void Deallocate(T* buffer, usize count) noexcept
+	static void Deallocate(T* buffer, Usize count) noexcept
 	{
 		#ifdef _DEBUG
 		g_currentMemoryAllocatedBytes.fetch_sub(count * sizeof(T), std::memory_order::relaxed);

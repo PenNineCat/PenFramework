@@ -22,13 +22,13 @@ namespace PenFramework::UnitTest::Core
 	public:
 		virtual ~IUnitTestHandle() noexcept = default;
 		virtual void Exception(PenEngine::StringView message, const std::exception& exception, const std::stacktrace& stacktrace) = 0;
-		virtual void Message(PenEngine::StringView message, PenEngine::u32 line) = 0;
-		virtual void Checkpoint(PenEngine::StringView message, PenEngine::u32 line) = 0;
-		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line) = 0;
-		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::u32 line) = 0;
+		virtual void Message(PenEngine::StringView message, PenEngine::U32 line) = 0;
+		virtual void Checkpoint(PenEngine::StringView message, PenEngine::U32 line) = 0;
+		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::U32 line) = 0;
+		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::U32 line) = 0;
 		virtual void UnhandledException(const std::exception& exception) = 0;
-		virtual void Failed(PenEngine::StringView message, PenEngine::u32 line) = 0;
-		virtual void TestStart(PenEngine::StringView testName,PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) = 0;
+		virtual void Failed(PenEngine::StringView message, PenEngine::U32 line) = 0;
+		virtual void TestStart(PenEngine::StringView testName,PenEngine::Usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) = 0;
 		virtual void TestFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) = 0;
 	};
 

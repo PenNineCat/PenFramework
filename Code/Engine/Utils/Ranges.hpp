@@ -67,7 +67,7 @@ namespace PenFramework::PenEngine
 
 		struct BeginStruct
 		{
-			enum class BeginChoice : u8
+			enum class BeginChoice : U8
 			{
 				Array,
 				FrameworkContainerIterator,
@@ -140,7 +140,7 @@ namespace PenFramework::PenEngine
 
 		struct EndStruct
 		{
-			enum class EndChoice : u8
+			enum class EndChoice : U8
 			{
 				Array,
 				FrameworkContainerIterator,
@@ -157,7 +157,7 @@ namespace PenFramework::PenEngine
 				else if constexpr (HasFrameworkContainerIterator<T>)
 					return { EndChoice::FrameworkContainerIterator,noexcept(std::_Fake_copy_init(std::declval<T>().End())) };
 				else if constexpr (HasSTDLikeContainerIterator<T>)
-					return { EndChoice::STDLikeContainerIterator,noexcept(std::_Fake_copy_init(std::declval<T>().End())) };
+					return { EndChoice::STDLikeContainerIterator,noexcept(std::_Fake_copy_init(std::declval<T>().end())) };
 				else if constexpr (HasSTDLikeADL<T>)
 					return { EndChoice::STDLikeADLSearch,noexcept(std::_Fake_copy_init(end(std::declval<T>()))) };
 				else
@@ -214,7 +214,7 @@ namespace PenFramework::PenEngine
 
 		struct SizeStruct
 		{
-			enum class SizeChoice : u8
+			enum class SizeChoice : U8
 			{
 				Array,
 				FrameworkContainerFunc,
@@ -259,7 +259,7 @@ namespace PenFramework::PenEngine
 				else if constexpr (choice.Choice == SizeChoice::STDLikeADLSearch)
 					return size(t);
 				else if constexpr (choice.Choice == SizeChoice::Difference)
-					return static_cast<usize>(PenEngine::Begin(t) - PenEngine::End(t));
+					return static_cast<Usize>(PenEngine::Begin(t) - PenEngine::End(t));
 				else
 					static_assert(false, "Unsupported target");
 			}
@@ -281,7 +281,7 @@ namespace PenFramework::PenEngine
 
 		struct DataStruct
 		{
-			enum class DataChoice : u8
+			enum class DataChoice : U8
 			{
 				FrameworkContainerFunc,
 				STDLikeContainerFunc,

@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/IO/URI.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -10,13 +10,24 @@
 
 #pragma once
 
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "Path.h"
+#include "../String/String.hpp"
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	class URI
+	{
+	public:
+		Path ToLocalPath() const;
+	private:
+		String m_uri;
+	};
+
+
 }
+
+template <>
+struct std::formatter<PenFramework::PenEngine::URI>
+{
+
+};

@@ -180,9 +180,9 @@ namespace PenFramework::UnitTest
 			String s2 = s1;
 			String s3 = s1;
 
-			wch wchworld[] = L",world";
-			ch16 u16world[] = u",world";
-			ch32 u32world[] = U",world";
+			Wch wchworld[] = L",world";
+			Ch16 u16world[] = u",world";
+			Ch32 u32world[] = U",world";
 
 			s1.ConvertAndPushBack(wchworld);
 			s2.ConvertAndPushBack(u16world);
@@ -196,15 +196,15 @@ namespace PenFramework::UnitTest
 			String s5 = s4;
 			String s6 = s4;
 
-			wch wchhello[] = L"Hello";
-			ch16 u16hello[] = u"Hello";
-			ch32 u32hello[] = U"Hello";
+			Wch wchhello[] = L"Hello";
+			Ch16 u16hello[] = u"Hello";
+			Ch32 u32hello[] = U"Hello";
 
 			s4.ConvertAndPushFront(wchhello);
 			s5.ConvertAndPushFront(u16hello);
 			s6.ConvertAndPushFront(u32hello);
 
-			UNIT_TEST_CONDITION("wchhello + s4 == \"Hello,world\"",s4 == "Hello,world")
+			UNIT_TEST_CONDITION("wchhello + s4 == \"Hello,world\"", s4 == "Hello,world")
 				UNIT_TEST_CONDITION("ch16hello + s5 == \"Hello,world\"", s5 == "Hello,world")
 				UNIT_TEST_CONDITION("ch32hello + s6 == \"Hello,world\"", s6 == "Hello,world")
 		}
@@ -305,7 +305,7 @@ namespace PenFramework::UnitTest
 			String s("ABCD");
 
 			// 基本遍历：非 const
-			usize i = 0;
+			Usize i = 0;
 			for (auto it = s.begin(); it != s.end(); ++it, ++i)
 			{
 				UNIT_TEST_CONDITION("正向迭代器值正确", *it == "ABCD"[i])
@@ -356,7 +356,7 @@ namespace PenFramework::UnitTest
 			// 范围 for 循环（依赖 begin/end）
 				String range_test("XYZ");
 			String copy_via_range;
-			for (ch8 c : range_test)
+			for (Ch8 c : range_test)
 			{
 				copy_via_range += c;
 			}
@@ -376,30 +376,7 @@ namespace PenFramework::UnitTest
 		}
 
 		UNIT_TEST_CHECKPOINT("ConvertXXX Plan Benchmark")
-		auto aSt = std::chrono::steady_clock::now();
-
-		wch testStr[] = L"This is a benchmark test, and the str is long enough to use heap buffer.";
-
-		for (usize i = 0; i < 10000; ++i)
-		{
-			String str("Hello,world!");
-			str.ConvertAndPushFront(testStr,73);
-		}
-		auto aEn = std::chrono::steady_clock::now();
-
-		UNIT_TEST_MESSAGE(Format("Plan A总耗时：{}",aEn - aSt))
-
-		auto bSt = std::chrono::steady_clock::now();
-		for (usize i = 0; i < 10000; ++i)
-		{
-			String str("Hello,world!");
-			str.ConvertAndPushFrontB(testStr, 73);
-		}
-		auto bEn = std::chrono::steady_clock::now();
-
-		UNIT_TEST_MESSAGE(Format("Plan B总耗时：{}", bEn - bSt))
-
-
+			auto aSt = std::chrono::steady_clock::now();
 		UNIT_TEST_MESSAGE("String 所有测试通过")
 			UNIT_TEST_CHECKPOINT("String 单元测试完成")
 	}

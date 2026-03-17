@@ -126,6 +126,9 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +136,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\Engine\CoreApplication\CoreApplication.cpp" />
+    <ClCompile Include="Code\Engine\IO\Hardware\FileDevice.cpp" />
+    <ClCompile Include="Code\Engine\IO\Internal\PathAnalyzer.cpp" />
+    <ClCompile Include="Code\Engine\IO\Path.cpp" />
+    <ClCompile Include="Code\Engine\IO\URI.cpp" />
+    <ClCompile Include="Code\Engine\Objects\PObject.cpp" />
+    <ClCompile Include="Code\Engine\Objects\WorldObject.cpp" />
     <ClCompile Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.cpp" />
     <ClCompile Include="Code\UnitTest\UnitTestFramework.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -140,15 +150,30 @@
   <ItemGroup>
     <ClInclude Include="Code\Engine\Common\Iterator.hpp" />
     <ClInclude Include="Code\Engine\Common\Type.hpp" />
+    <ClInclude Include="Code\Engine\CoreApplication\CoreApplication.h" />
+    <ClInclude Include="Code\Engine\Coroutine\Awaitable.hpp" />
     <ClInclude Include="Code\Engine\DebugTools\Verify.hpp" />
+    <ClInclude Include="Code\Engine\Environment\DXEnvironment.h" />
+    <ClInclude Include="Code\Engine\Environment\Win32Environment.h" />
+    <ClInclude Include="Code\Engine\IO\Hardware\FileDevice.h" />
+    <ClInclude Include="Code\Engine\IO\IAsyncIODevice.h" />
+    <ClInclude Include="Code\Engine\IO\IInputStream.h" />
+    <ClInclude Include="Code\Engine\IO\IIODevice.h" />
+    <ClInclude Include="Code\Engine\IO\Internal\PathAnalyzer.h" />
+    <ClInclude Include="Code\Engine\IO\IOutputStream.h" />
+    <ClInclude Include="Code\Engine\IO\IStreamIODevice.h" />
+    <ClInclude Include="Code\Engine\IO\Path.h" />
+    <ClInclude Include="Code\Engine\IO\URI.h" />
     <ClInclude Include="Code\Engine\Math\Color.hpp" />
     <ClInclude Include="Code\Engine\Math\MathFunction.hpp" />
     <ClInclude Include="Code\Engine\Math\Vec2.hpp" />
     <ClInclude Include="Code\Engine\Math\Vec3.hpp" />
-    <ClInclude Include="Code\Engine\Math\Vec3x3.hpp" />
+    <ClInclude Include="Code\Engine\Math\Mat3x3.hpp" />
     <ClInclude Include="Code\Engine\Math\Vec4.hpp" />
-    <ClInclude Include="Code\Engine\Math\Vec4x4.hpp" />
-    <ClInclude Include="Code\Engine\String\Fromat.hpp" />
+    <ClInclude Include="Code\Engine\Math\Mat4x4.hpp" />
+    <ClInclude Include="Code\Engine\Objects\PObject.h" />
+    <ClInclude Include="Code\Engine\Objects\WorldObject.h" />
+    <ClInclude Include="Code\Engine\String\Format.hpp" />
     <ClInclude Include="Code\Engine\String\String.hpp" />
     <ClInclude Include="Code\Engine\String\StringMap.hpp" />
     <ClInclude Include="Code\Engine\String\StringSet.hpp" />

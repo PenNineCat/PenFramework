@@ -19,17 +19,17 @@ namespace PenFramework::PenEngine
 	{
 		using is_transparent = void;
 
-		static usize operator()(BasicStringView<CharType> str) noexcept
+		static Usize operator()(BasicStringView<CharType> str) noexcept
 		{
 			return std::hash<BasicStringView<CharType>>::operator()(str);
 		}
 
-		static usize operator()(const BasicString<CharType>& str) noexcept
+		static Usize operator()(const BasicString<CharType>& str) noexcept
 		{
 			return std::hash<BasicString<CharType>>::operator()(str);
 		}
 
-		static usize operator()(const CharType* ptr) noexcept
+		static Usize operator()(const CharType* ptr) noexcept
 		{
 			return std::hash<BasicStringView<CharType>>::operator()(BasicStringView<CharType>(ptr));
 		}

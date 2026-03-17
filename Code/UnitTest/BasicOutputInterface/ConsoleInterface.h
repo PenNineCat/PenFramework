@@ -35,21 +35,21 @@ namespace PenFramework::UnitTest
 		virtual ~SpdlogSTSharedHandle() noexcept override = default;
 
 		virtual void Exception(PenEngine::StringView message, const std::exception& exception, const std::stacktrace& stacktrace) override;
-		virtual void Message(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void Checkpoint(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
-		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
+		virtual void Message(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void Checkpoint(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::U32 line) override;
+		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::U32 line) override;
 		virtual void UnhandledException(const std::exception& exception) override;
-		virtual void Failed(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void TestStart(PenEngine::StringView testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void Failed(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void TestStart(PenEngine::StringView testName, PenEngine::Usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void TestFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 	private:
 		std::shared_ptr<spdlog::logger> m_logger;
 
 		PenEngine::String m_testName;
 		std::chrono::steady_clock::time_point m_startTime;
-		PenEngine::usize m_allCheckpointCount = 0;
-		PenEngine::usize m_reachedCheckpointCount = 0;
+		PenEngine::Usize m_allCheckpointCount = 0;
+		PenEngine::Usize m_reachedCheckpointCount = 0;
 		bool m_successful = true;
 	};
 
@@ -88,21 +88,21 @@ namespace PenFramework::UnitTest
 		virtual ~SpdlogMTSharedHandle() noexcept override = default;
 
 		virtual void Exception(PenEngine::StringView message, const std::exception& exception, const std::stacktrace& stacktrace) override;
-		virtual void Message(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void Checkpoint(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
-		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::u32 line) override;
+		virtual void Message(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void Checkpoint(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void Condition(PenEngine::StringView message, bool condition, PenEngine::U32 line) override;
+		virtual void TerminalCondition(PenEngine::StringView message, bool condition, PenEngine::U32 line) override;
 		virtual void UnhandledException(const std::exception& exception) override;
-		virtual void Failed(PenEngine::StringView message, PenEngine::u32 line) override;
-		virtual void TestStart(PenEngine::StringView testName, PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
+		virtual void Failed(PenEngine::StringView message, PenEngine::U32 line) override;
+		virtual void TestStart(PenEngine::StringView testName, PenEngine::Usize checkpointCount, std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 		virtual void TestFinish(std::chrono::steady_clock::time_point stPoint, std::chrono::system_clock::time_point scPoint) override;
 	private:
 		std::shared_ptr<spdlog::logger> m_logger;
 
 		PenEngine::String m_testName;
 		std::chrono::steady_clock::time_point m_startTime;
-		PenEngine::usize m_allCheckpointCount = 0;
-		PenEngine::usize m_reachedCheckpointCount = 0;
+		PenEngine::Usize m_allCheckpointCount = 0;
+		PenEngine::Usize m_reachedCheckpointCount = 0;
 		bool m_successful = true;
 	};
 

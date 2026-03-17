@@ -11,8 +11,10 @@
 
 #ifdef _DEBUG
 #ifndef _MSC_VER
-#warning "PenFramework Container Internal Checker need MSVC Environment in current SDK Version, and it`s disable now."
-#define DEBUG_VERIFY_REPORT(cond,message)
+#warning "PenFramework Container Internal Checker need MSVC Environment in current SDK Version, and now it uses assert."
+#define DEBUG_VERIFY_REPORT(cond,message) \
+	if(!(cond)) \
+		assert(message)
 #else
 #define DEBUG_VERIFY_REPORT(cond,message) \
 	if(!(cond)) \

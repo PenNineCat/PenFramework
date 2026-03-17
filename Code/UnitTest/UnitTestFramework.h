@@ -24,8 +24,8 @@
 #define UNIT_TEST_AREA_BEGIN(TestName,...) \
 struct TestName##_AutoRunner EXPAND_INHERIT_CLASS(__VA_ARGS__) \
 {\
-	static PenFramework::PenEngine::usize g_checkpointCount; \
-	static inline PenFramework::PenEngine::usize g_checkpointCountMacroStart = __COUNTER__; \
+	static PenFramework::PenEngine::Usize g_checkpointCount; \
+	static inline PenFramework::PenEngine::Usize g_checkpointCountMacroStart = __COUNTER__; \
 	static void Invoker(PenFramework::UnitTest::Core::IUnitTestHandle* handle) \
 	{\
 		handle->TestStart(#TestName,g_checkpointCount,std::chrono::steady_clock::now(),std::chrono::system_clock::now()); \
@@ -50,7 +50,7 @@ inline PenFramework::UnitTest::Core::UnitTestAutoRegister UNIQUE_VAR_NAME(g_##Te
 inline void TestName##_AutoRunner::TestMethod(PenFramework::UnitTest::Core::IUnitTestHandle* handle)
 
 
-#define UNIT_TEST_AREA_END(TestName) inline PenFramework::PenEngine::usize TestName##_AutoRunner::g_checkpointCount =  __COUNTER__ - TestName##_AutoRunner::g_checkpointCountMacroStart - 1;
+#define UNIT_TEST_AREA_END(TestName) inline PenFramework::PenEngine::Usize TestName##_AutoRunner::g_checkpointCount =  __COUNTER__ - TestName##_AutoRunner::g_checkpointCountMacroStart - 1;
 
 #ifndef UNIT_TEST_BENCHMARK
 #define UNIT_TEST_CONDITION(message,condition) \
@@ -106,22 +106,23 @@ namespace PenFramework::UnitTest::Core
 	class UnitTestFailedResult
 	{
 	public:
-		UnitTestFailedResult(PenEngine::StringView result, PenEngine::u32 line) : m_result(result), m_line(line) {}
+		UnitTestFailedResult(PenEngine::StringView result, PenEngine::U32 line) : m_result(result), m_line(line) {}
 
 		PenEngine::StringView Result() const noexcept { return m_result; }
-		PenEngine::u32 Line() const noexcept { return m_line; }
+		PenEngine::U32 Line() const noexcept { return m_line; }
 	private:
 		PenEngine::StringView m_result;
-		PenEngine::u32 m_line;
+		PenEngine::U32 m_line;
 	};
 
 	class UnitTestManager : public PenEngine::Singleton<UnitTestManager>
 	{
 	public:
+		UnitTestManager() noexcept = default;
 		virtual ~UnitTestManager() noexcept override = default;
 		void Init(std::unique_ptr<IUnitContext> context);
 		void Register(PenEngine::StringView filename, PenEngine::StringView testName, InvokerPtr ptr);
-		void StartUnitTest(PenEngine::u8 parallelTestNum = 1);
+		void StartUnitTest(PenEngine::U8 parallelTestNum = 1);
 	private:
 		struct UnitTestNode
 		{

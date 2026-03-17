@@ -20,8 +20,8 @@
 void PenFramework::UnitTest::Core::UnitTestManager::Init(std::unique_ptr<IUnitContext> context)
 {
 	m_context = std::move(context);
-	PenEngine::usize fileCount = m_registerUnitTest.size();
-	PenEngine::usize count = 0;
+	PenEngine::Usize fileCount = m_registerUnitTest.size();
+	PenEngine::Usize count = 0;
 
 	for (auto& p : m_registerUnitTest)
 	{
@@ -40,7 +40,7 @@ void PenFramework::UnitTest::Core::UnitTestManager::Register(PenEngine::StringVi
 	it->second.emplace_back(PenEngine::String(testName), ptr);
 }
 
-void PenFramework::UnitTest::Core::UnitTestManager::StartUnitTest(PenEngine::u8 parallelTestNum)
+void PenFramework::UnitTest::Core::UnitTestManager::StartUnitTest(PenEngine::U8 parallelTestNum)
 {
 	if (m_context == nullptr)
 		return;

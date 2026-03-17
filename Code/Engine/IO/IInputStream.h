@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/IO/IStream.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -10,13 +10,15 @@
 
 #pragma once
 
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "../Common/Type.hpp"
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	class IInputStream
+	{
+	public:
+		virtual ~IInputStream() noexcept = default;
+		virtual void PrepareBuffer(Usize requiredLen) = 0;
+		virtual void WriteBuffer(B8* data, Usize actualLen) = 0;
+	};
 }

@@ -16,22 +16,22 @@
 
 namespace PenFramework::PenEngine
 {
-	static constexpr usize NPos = static_cast<usize>(-1);
+	static constexpr Usize NPos = static_cast<Usize>(-1);
 
 	template <typename T>
-	concept IsStdCharType = IsOneOf<T, cch, wch, ch8, ch16, ch32>;
+	concept IsStdCharType = IsOneOf<T, Ch, Wch, Ch8, Ch16, Ch32>;
 
 	template <typename T>
-	concept CanConvertToU8CharType = IsStdCharType<T> && (sizeof(T) == sizeof(ch8));
+	concept CanConvertToU8CharType = IsStdCharType<T> && (sizeof(T) == sizeof(Ch8));
 
 	template <typename T>
-	concept CanConvertToU16CharType = IsStdCharType<T> && (sizeof(T) == sizeof(ch16));
+	concept CanConvertToU16CharType = IsStdCharType<T> && (sizeof(T) == sizeof(Ch16));
 
 	template <typename T>
-	concept CanConvertToU32CharType = IsStdCharType<T> && (sizeof(T) == sizeof(ch32));
+	concept CanConvertToU32CharType = IsStdCharType<T> && (sizeof(T) == sizeof(Ch32));
 
 	template <typename CharType>
-	usize ChFind(CharType ch, usize off, const CharType* source, usize sourceLength) noexcept
+	Usize ChFind(CharType ch, Usize off, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (sourceLength == 0 || off > sourceLength - 1)
 			return NPos;
@@ -43,18 +43,18 @@ namespace PenFramework::PenEngine
 		if (res == sourceEnd)
 			return NPos;
 
-		return static_cast<usize>(res - source);
+		return static_cast<Usize>(res - source);
 		#endif // _USE_STD_VECTOR_ALGORITHMS
 
 		const CharType* match = std::char_traits<CharType>::find(source, sourceLength, ch);
 		if (match == nullptr)
 			return NPos;
 
-		return static_cast<usize>(match - source);
+		return static_cast<Usize>(match - source);
 	}
 
 	template <typename CharType>
-	usize StrFind(const CharType* str, usize off, usize len, const CharType* source, usize sourceLength) noexcept
+	Usize StrFind(const CharType* str, Usize off, Usize len, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (len > sourceLength || off > sourceLength - len)
 			return NPos;
@@ -69,7 +69,7 @@ namespace PenFramework::PenEngine
 		const CharType* res = std::_Search_vectorized(sourceStart, sourceEnd, str, len);
 
 		if (res != sourceEnd)
-			return static_cast<usize>(res - source);
+			return static_cast<Usize>(res - source);
 		return NPos;
 
 		#endif // _USE_STD_VECTOR_ALGORITHMS
@@ -92,7 +92,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize ChFindFirstOf(CharType ch, usize off, const CharType* source, usize sourceLength) noexcept
+	Usize ChFindFirstOf(CharType ch, Usize off, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (off >= sourceLength)
 			return NPos;
@@ -104,18 +104,18 @@ namespace PenFramework::PenEngine
 		if (res == sourceEnd)
 			return NPos;
 
-		return static_cast<usize>(res - source);
+		return static_cast<Usize>(res - source);
 		#endif // _USE_STD_VECTOR_ALGORITHMS
 
 		const CharType* match = std::char_traits<CharType>::find(source, sourceLength, ch);
 		if (match == nullptr)
 			return NPos;
 
-		return static_cast<usize>(match - source);
+		return static_cast<Usize>(match - source);
 	}
 
 	template <typename CharType>
-	usize StrFindFirstOf(const CharType* str, usize off, usize len, const CharType* source, usize sourceLength) noexcept
+	Usize StrFindFirstOf(const CharType* str, Usize off, Usize len, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (off >= sourceLength)
 			return NPos;
@@ -124,9 +124,9 @@ namespace PenFramework::PenEngine
 		const CharType* sourceEnd = source + sourceLength;
 
 		#ifdef _USE_STD_VECTOR_ALGORITHMS
-		if (usize vectorizedTargetLength = sourceLength - off; vectorizedTargetLength >= std::_Threshold_find_first_of)
+		if (Usize vectorizedTargetLength = sourceLength - off; vectorizedTargetLength >= std::_Threshold_find_first_of)
 		{
-			usize pos = std::_Find_first_of_pos_vectorized(sourceStart, vectorizedTargetLength, str, len);
+			Usize pos = std::_Find_first_of_pos_vectorized(sourceStart, vectorizedTargetLength, str, len);
 			return pos != NPos ? pos + off : NPos;
 		}
 		#endif // _USE_STD_VECTOR_ALGORITHMS
@@ -135,11 +135,11 @@ namespace PenFramework::PenEngine
 		{
 			bool bitmap[256] = {};
 
-			for (usize i = 0; i < len; ++i)
-				bitmap[static_cast<u8>(str[i])] = true;
+			for (Usize i = 0; i < len; ++i)
+				bitmap[static_cast<U8>(str[i])] = true;
 
-			for (usize i = off; i < sourceLength; ++i)
-				if (bitmap[static_cast<u8>(source[i])] == true)
+			for (Usize i = off; i < sourceLength; ++i)
+				if (bitmap[static_cast<U8>(source[i])] == true)
 					return i;
 
 			return NPos;
@@ -155,7 +155,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize ChFindLastOf(CharType ch, usize off, const CharType* source, usize sourceLength) noexcept
+	Usize ChFindLastOf(CharType ch, Usize off, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (sourceLength == 0) { // no room for match
 			return NPos;
@@ -187,7 +187,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize StrFindLastOf(const CharType* str, usize off, usize len, const CharType* source, usize sourceLength) noexcept
+	Usize StrFindLastOf(const CharType* str, Usize off, Usize len, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (len == 0 || sourceLength == 0)
 			return NPos;
@@ -195,7 +195,7 @@ namespace PenFramework::PenEngine
 		off = std::min(sourceLength - 1, off);
 
 		#ifdef _USE_STD_VECTOR_ALGORITHMS
-		if (usize vectorizedTargetLength = off + 1; vectorizedTargetLength >= std::_Threshold_find_first_of)
+		if (Usize vectorizedTargetLength = off + 1; vectorizedTargetLength >= std::_Threshold_find_first_of)
 			return std::_Find_last_of_pos_vectorized(source, off + 1, str, len);
 		#endif // _USE_STD_VECTOR_ALGORITHMS
 
@@ -203,11 +203,11 @@ namespace PenFramework::PenEngine
 		{
 			bool bitmap[256] = {};
 
-			for (usize i = 0; i < len; ++i)
-				bitmap[static_cast<u8>(str[i])] = true;
+			for (Usize i = 0; i < len; ++i)
+				bitmap[static_cast<U8>(str[i])] = true;
 
-			for (usize i = off; i > 0; --i)
-				if (bitmap[static_cast<u8>(source[i - 1])] == true)
+			for (Usize i = off; i > 0; --i)
+				if (bitmap[static_cast<U8>(source[i - 1])] == true)
 					return i - 1;
 
 			return NPos;
@@ -225,7 +225,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize ChFindFirstNotOf(CharType ch, usize off, const CharType* source, usize sourceLength) noexcept
+	Usize ChFindFirstNotOf(CharType ch, Usize off, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (off >= sourceLength)
 			return NPos;
@@ -252,7 +252,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize StrFindFirstNotOf(const CharType* str, usize off, usize len, const CharType* source, usize sourceLength) noexcept
+	Usize StrFindFirstNotOf(const CharType* str, Usize off, Usize len, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (off >= sourceLength)
 			return NPos;
@@ -261,9 +261,9 @@ namespace PenFramework::PenEngine
 		const CharType* sourceEnd = source + sourceLength;
 
 		#ifdef _USE_STD_VECTOR_ALGORITHMS
-		if (usize vectorizedTargetLength = sourceLength - off; vectorizedTargetLength >= std::_Threshold_find_first_of)
+		if (Usize vectorizedTargetLength = sourceLength - off; vectorizedTargetLength >= std::_Threshold_find_first_of)
 		{
-			usize pos = std::_Find_first_not_of_pos_vectorized(sourceStart, sourceLength - off, str, len);
+			Usize pos = std::_Find_first_not_of_pos_vectorized(sourceStart, sourceLength - off, str, len);
 			return pos != NPos ? pos + off : NPos;
 		}
 		#endif // _USE_STD_VECTOR_ALGORITHMS
@@ -272,11 +272,11 @@ namespace PenFramework::PenEngine
 		{
 			bool bitmap[256] = {};
 
-			for (usize i = 0; i < len; ++i)
-				bitmap[static_cast<u8>(str[i])] = true;
+			for (Usize i = 0; i < len; ++i)
+				bitmap[static_cast<U8>(str[i])] = true;
 
-			for (usize i = off; i < sourceLength; ++i)
-				if (bitmap[static_cast<u8>(source[i])] == false)
+			for (Usize i = off; i < sourceLength; ++i)
+				if (bitmap[static_cast<U8>(source[i])] == false)
 					return i;
 
 			return NPos;
@@ -292,7 +292,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize ChFindLastNotOf(CharType ch, usize off, const CharType* source, usize sourceLength) noexcept
+	Usize ChFindLastNotOf(CharType ch, Usize off, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (sourceLength == 0) { // no room for match
 			return NPos;
@@ -319,7 +319,7 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	usize StrFindLastNotOf(const CharType* str, usize off, usize len, const CharType* source, usize sourceLength) noexcept
+	Usize StrFindLastNotOf(const CharType* str, Usize off, Usize len, const CharType* source, Usize sourceLength) noexcept
 	{
 		if (len == 0 || sourceLength == 0)
 			return NPos;
@@ -330,7 +330,7 @@ namespace PenFramework::PenEngine
 		const CharType* sourceEnd = source + sourceLength;
 
 		#ifdef _USE_STD_VECTOR_ALGORITHMS
-		if (usize vectorizedTargetLength = off + 1; vectorizedTargetLength >= std::_Threshold_find_first_of)
+		if (Usize vectorizedTargetLength = off + 1; vectorizedTargetLength >= std::_Threshold_find_first_of)
 			return std::_Find_last_not_of_pos_vectorized(source, off + 1, str, len);
 		#endif // _USE_STD_VECTOR_ALGORITHMS
 
@@ -338,11 +338,11 @@ namespace PenFramework::PenEngine
 		{
 			bool bitmap[256] = {};
 
-			for (usize i = 0; i < len; ++i)
-				bitmap[static_cast<u8>(str[i])] = true;
+			for (Usize i = 0; i < len; ++i)
+				bitmap[static_cast<U8>(str[i])] = true;
 
-			for (usize i = off; i > 0; --i)
-				if (bitmap[static_cast<u8>(source[i - 1])] == false)
+			for (Usize i = off; i > 0; --i)
+				if (bitmap[static_cast<U8>(source[i - 1])] == false)
 					return i - 1;
 
 			return NPos;

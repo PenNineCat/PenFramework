@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/IO/OStream.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -9,14 +9,15 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #pragma once
-
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "../Common/Type.hpp"
+#include <utility>
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	class IOutputStream
+	{
+	public:
+		virtual ~IOutputStream() noexcept = default;
+		virtual std::pair<B8*, Usize> ReadBuffer() = 0;
+	};
 }

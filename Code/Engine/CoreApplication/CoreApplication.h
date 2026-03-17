@@ -1,4 +1,4 @@
-// File /Engine/String/StringUnorderedMap
+// File /Engine/CoreApplication/CoreApplication.h
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -10,13 +10,19 @@
 
 #pragma once
 
-#include "StringTransparentHash.hpp"
-#include <unordered_map>
+#include "../Environment/Win32Environment.h"
 
 namespace PenFramework::PenEngine
 {
-	template <typename V>
-	using StringUnorderedMap = std::unordered_map<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
-	template <typename V>
-	using StringUnorderedMultimap = std::unordered_multimap<String, V, StringTransparentHash<Ch>, std::equal_to<>>;
+	class CoreApplication
+	{
+	public:
+		CoreApplication();
+	private:
+		void LoadWindow();
+		void UnloadWindow();
+
+		HINSTANCE m_hInstance;
+		ATOM m_windowID;
+	};
 }

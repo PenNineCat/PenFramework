@@ -30,12 +30,12 @@ void PenFramework::UnitTest::SpdlogSTSharedHandle::UnhandledException(const std:
 	m_successful = false;
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Failed(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Failed(PenEngine::StringView message, PenEngine::U32 line)
 {
 }
 
 void PenFramework::UnitTest::SpdlogSTSharedHandle::TestStart(PenEngine::StringView testName,
-															 PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
+															 PenEngine::Usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
 															 std::chrono::system_clock::time_point scPoint)
 {
 	m_testName = testName;
@@ -64,24 +64,24 @@ PenFramework::UnitTest::SpdlogSTSharedContext::SpdlogSTSharedContext()
 	m_handle = SpdlogSTSharedHandle(m_logger);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Message(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Message(PenEngine::StringView message, PenEngine::U32 line)
 {
 	m_logger->info("测试消息——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::U32 line)
 {
 	m_reachedCheckpointCount++;
 	m_logger->info("测试检查点——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogSTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogSTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::U32 line)
 {
 	m_logger->info("测试条件检查——行数：{} 消息：{} 条件是否达成：{}", line, message, condition);
 }
 
 void PenFramework::UnitTest::SpdlogSTSharedHandle::TerminalCondition(PenEngine::StringView message, bool condition,
-																	 PenEngine::u32 line)
+																	 PenEngine::U32 line)
 {
 	m_logger->info("测试关键条件检查——行数：{}消息：{} 条件是否达成：{}", line, message, condition);
 }
@@ -135,12 +135,12 @@ void PenFramework::UnitTest::SpdlogMTSharedHandle::UnhandledException(const std:
 	m_successful = false;
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Failed(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Failed(PenEngine::StringView message, PenEngine::U32 line)
 {
 }
 
 void PenFramework::UnitTest::SpdlogMTSharedHandle::TestStart(PenEngine::StringView testName,
-															 PenEngine::usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
+															 PenEngine::Usize checkpointCount, std::chrono::steady_clock::time_point stPoint,
 															 std::chrono::system_clock::time_point scPoint)
 {
 	m_testName = PenEngine::String(testName);
@@ -169,24 +169,24 @@ PenFramework::UnitTest::SpdlogMTSharedContext::SpdlogMTSharedContext()
 	m_handle = SpdlogMTSharedHandle(m_logger);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Message(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Message(PenEngine::StringView message, PenEngine::U32 line)
 {
 	m_logger->info("测试消息——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Checkpoint(PenEngine::StringView message, PenEngine::U32 line)
 {
 	m_reachedCheckpointCount++;
 	m_logger->info("测试检查点——行数：{} 消息：{}", line, message);
 }
 
-void PenFramework::UnitTest::SpdlogMTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::u32 line)
+void PenFramework::UnitTest::SpdlogMTSharedHandle::Condition(PenEngine::StringView message, bool condition, PenEngine::U32 line)
 {
 	m_logger->info("测试条件检查——行数：{} 消息：{} 条件是否达成：{}", line, message, condition);
 }
 
 void PenFramework::UnitTest::SpdlogMTSharedHandle::TerminalCondition(PenEngine::StringView message, bool condition,
-																	 PenEngine::u32 line)
+																	 PenEngine::U32 line)
 {
 	m_logger->info("测试关键条件检查——行数：{}消息：{} 条件是否达成：{}", line, message, condition);
 }
