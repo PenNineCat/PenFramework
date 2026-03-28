@@ -375,8 +375,6 @@ namespace PenFramework::UnitTest
 				UNIT_TEST_CONDITION("空字符串 rbegin == rend", empty_str.rbegin() == empty_str.rend())
 		}
 
-		UNIT_TEST_CHECKPOINT("ConvertXXX Plan Benchmark")
-			auto aSt = std::chrono::steady_clock::now();
 		UNIT_TEST_MESSAGE("String 所有测试通过")
 			UNIT_TEST_CHECKPOINT("String 单元测试完成")
 	}

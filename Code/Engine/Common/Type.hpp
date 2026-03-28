@@ -15,8 +15,6 @@
 
 namespace PenFramework::PenEngine
 {
-	/// @brief std::byte
-	using B8e = std::byte;
 	using B8 = uint8_t;
 	using U8 = uint8_t;
 	using U16 = uint16_t;

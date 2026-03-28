@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include "../Utils/Iterator.hpp"
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/InvalidArgument.hpp"
+#include "../Utils/Iterator.hpp"
 #include "../Utils/Ranges.hpp"
 #include "StrSearchUtils.hpp"
 #include <format>
@@ -163,11 +163,17 @@ namespace PenFramework::PenEngine
 		using ConstIterator = const_iterator;
 
 		BasicStringView() noexcept = default;
-		/*implicit*/ BasicStringView(const CharType* str) noexcept : BasicStringView(str, CharTraits::length(str)) {}
-		BasicStringView(const CharType* str, Usize len) noexcept : m_str(str), m_len(len) {}
-		BasicStringView(const CharType* begin, const CharType* end) noexcept : m_str(begin), m_len(end - begin) {}
+		/*implicit*/ BasicStringView(std::nullptr_t) = delete;
+		/*implicit*/ BasicStringView(const CharType* str) noexcept : m_str(str), m_size(CharTraits::length(str)) {}
+		BasicStringView(const CharType* str, Usize len) noexcept : m_str(str), m_size(len) {}
+		BasicStringView(const CharType* begin, const CharType* end) noexcept : m_str(begin), m_size(end - begin) {}
 
-		BasicStringView(ConstIterator begin, ConstIterator end) noexcept : m_str(begin.m_ptr), m_len(end.m_ptr - begin.m_ptr) {}
+		BasicStringView(ConstIterator begin, ConstIterator end) noexcept : m_str(begin.Data()), m_size(end - begin) {}
+
+		BasicStringView(const BasicStringView&) noexcept = default;
+		BasicStringView(BasicStringView&&) noexcept = default;
+		BasicStringView& operator=(const BasicStringView&) noexcept = default;
+		BasicStringView& operator=(BasicStringView&&) noexcept = default;
 
 		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
 		&& ContiguousRange<Range>
@@ -179,7 +185,7 @@ namespace PenFramework::PenEngine
 			Rng.operator BasicStringView<CharType>();
 		})
 			constexpr explicit BasicStringView(Range&& rng) noexcept(noexcept(PenEngine::Data(rng)) && noexcept(PenEngine::Size(rng)))
-			: m_str(PenEngine::Data(rng)), m_len(static_cast<Usize>(PenEngine::Size(rng))) {
+			: m_str(PenEngine::Data(rng)), m_size(static_cast<Usize>(PenEngine::Size(rng))) {
 		}
 
 		template <typename Range> requires(!std::same_as<std::remove_cvref_t<Range>, BasicStringView>
@@ -189,38 +195,35 @@ namespace PenFramework::PenEngine
 			&& !std::is_convertible_v<Range, const CharType*>
 			&& !requires(std::remove_cvref_t<Range>& Rng)
 		{
-			Rng.operator BasicStringView<CharType>();
+			Rng.operator BasicStringView();
 		})
 			constexpr BasicStringView& operator=(Range&& rng) noexcept(noexcept(PenEngine::Data(rng)) && noexcept(PenEngine::Size(rng)))
 		{
 			m_str = PenEngine::Data(rng);
-			m_len = static_cast<Usize>(PenEngine::Size(rng));
+			m_size = static_cast<Usize>(PenEngine::Size(rng));
 			return *this;
 		}
 
-		bool operator==(const BasicStringView&) const noexcept = default;
-		bool operator==(const std::basic_string<CharType>& str) const noexcept
-		{
-			return m_len == str.size() && CharTraits::compare(m_str,str.data(),m_len) == 0;
-		}
-		bool operator==(std::basic_string_view<CharType> str) const noexcept
-		{
-			return m_len == str.size() && CharTraits::compare(m_str, str.data(), m_len) == 0;
-		}
-		bool operator==(const CharType* str) const noexcept
-		{
-			return CharTraits::compare(m_str, str.data(), m_len) == 0;
-		}
+		bool operator==(const BasicStringView& str) const noexcept;
+		bool operator==(Ch ch) const noexcept;
 
-		Usize Capacity() const noexcept { return m_len; }
-		Usize Size() const noexcept { return m_len; }
+		bool operator==(const std::basic_string<CharType>& str) const noexcept;
+
+		bool operator==(std::basic_string_view<CharType> str) const noexcept;
+
+		bool operator==(const CharType* str) const noexcept;
+
+		Usize Capacity() const noexcept { return m_size; }
+		Usize Size() const noexcept { return m_size; }
 
 		const CharType* Data() noexcept;
 		const CharType* Data() const noexcept;
+		const CharType* EndData() noexcept;
+		const CharType* EndData() const noexcept;
 
-		BasicStringView Substr(Usize off = 0, Usize len = NPos) const;
-		BasicStringView Right(Usize len) const;
-		BasicStringView Left(Usize len) const;
+		BasicStringView Substr(Usize off = 0, Usize len = NPos) const noexcept;
+		BasicStringView Right(Usize len) const noexcept;
+		BasicStringView Left(Usize len) const noexcept;
 
 		bool Empty() const noexcept;
 
@@ -293,8 +296,38 @@ namespace PenFramework::PenEngine
 		Usize FindLastNotOf(std::basic_string_view<CharType> str, Usize off = NPos) const noexcept;
 	private:
 		const CharType* m_str = nullptr;
-		Usize m_len = 0;
+		Usize m_size = 0;
 	};
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::operator==(const BasicStringView& str) const noexcept
+	{
+		return m_size == str.m_size && CharTraits::compare(m_str, str.m_str, m_size) == 0;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::operator==(Ch ch) const noexcept
+	{
+		return m_size == 1 && m_str[0] == ch;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::operator==(const std::basic_string<CharType>& str) const noexcept
+	{
+		return m_size == str.size() && CharTraits::compare(m_str, str.data(), m_size) == 0;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::operator==(std::basic_string_view<CharType> str) const noexcept
+	{
+		return m_size == str.size() && CharTraits::compare(m_str, str.data(), m_size) == 0;
+	}
+
+	template <typename CharType>
+	bool BasicStringView<CharType>::operator==(const CharType* str) const noexcept
+	{
+		return m_size == CharTraits::length(str) && CharTraits::compare(m_str, str, m_size) == 0;
+	}
 
 	template <typename CharType>
 	const CharType* BasicStringView<CharType>::Data() noexcept
@@ -309,20 +342,35 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	BasicStringView<CharType> BasicStringView<CharType>::Substr(Usize off, Usize len) const
+	const CharType* BasicStringView<CharType>::EndData() noexcept
 	{
-		off = std::min(off, m_len);
-		return BasicStringView(m_str + off, m_len - off);
+		return Data() + Size();
 	}
 
 	template <typename CharType>
-	BasicStringView<CharType> BasicStringView<CharType>::Right(Usize len) const
+	const CharType* BasicStringView<CharType>::EndData() const noexcept
 	{
-		return Substr(m_len - len, len);
+		return Data() + Size();
 	}
 
 	template <typename CharType>
-	BasicStringView<CharType> BasicStringView<CharType>::Left(Usize len) const
+	BasicStringView<CharType> BasicStringView<CharType>::Substr(Usize off, Usize len) const noexcept
+	{
+		Usize size = Size();
+
+		off = std::min(off, size);
+		len = std::min(len, size - off);
+		return BasicStringView(Data() + off, len);
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType> BasicStringView<CharType>::Right(Usize len) const noexcept
+	{
+		return Substr(m_size - len, len);
+	}
+
+	template <typename CharType>
+	BasicStringView<CharType> BasicStringView<CharType>::Left(Usize len) const noexcept
 	{
 		return Substr(0, len);
 	}
@@ -330,7 +378,7 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	bool BasicStringView<CharType>::Empty() const noexcept
 	{
-		return m_str == nullptr || m_len == 0;
+		return m_str == nullptr || m_size == 0;
 	}
 
 	template <typename CharType>
@@ -474,20 +522,20 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	CharType BasicStringView<CharType>::Back() const noexcept
 	{
-		return Data()[m_len];
+		return Data()[m_size - 1];
 	}
 
 	template <typename CharType>
 	const CharType& BasicStringView<CharType>::operator[](Usize size) const noexcept
 	{
-		DEBUG_VERIFY_REPORT(size < m_len, "string subscription out of range")
+		DEBUG_VERIFY_REPORT(size < m_size, "string subscription out of range")
 			return m_str[size];
 	}
 
 	template <typename CharType>
 	const CharType& BasicStringView<CharType>::At(Usize size) const
 	{
-		if (size >= m_len)
+		if (size >= m_size)
 			throw InvalidArgument("BasicStringView", "Function At", "string subscription out of range");
 
 		return m_str[size];

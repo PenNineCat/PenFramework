@@ -90,6 +90,12 @@
     <ClCompile Include="Code\Engine\IO\Internal\PathAnalyzer.cpp">
       <Filter>Code\Engine\IO\Internal</Filter>
     </ClCompile>
+    <ClCompile Include="Code\Engine\IO\Internal\PathUtils.cpp">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine\IO\Internal\PathNormalizer.cpp">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Engine\Common\Type.hpp">
@@ -218,13 +224,10 @@
     <ClInclude Include="Code\Engine\IO\IOutputStream.h">
       <Filter>Code\Engine\IO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\IO\IStreamIODevice.h">
-      <Filter>Code\Engine\IO</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Engine\IO\IIODevice.h">
       <Filter>Code\Engine\IO</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine\Coroutine\Awaitable.hpp">
+    <ClInclude Include="Code\Engine\Coroutine\AsyncTask.hpp">
       <Filter>Code\Engine\Coroutine</Filter>
     </ClInclude>
     <ClInclude Include="Code\Engine\IO\Hardware\FileDevice.h">
@@ -241,6 +244,21 @@
     </ClInclude>
     <ClInclude Include="Code\Engine\Common\Iterator.hpp">
       <Filter>Code\Engine\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\Internal\PathUtils.h">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\IO\Internal\PathNormalizer.h">
+      <Filter>Code\Engine\IO\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine\Coroutine\Awaiter.hpp">
+      <Filter>Code\Engine\Coroutine</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_WindowsPath.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\UnitTest\Tests\Test_UnixLikePath.hpp">
+      <Filter>Code\UnitTest\Tests</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

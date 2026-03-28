@@ -9,9 +9,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #pragma once
-
 #include "../String/String.hpp"
-#include "Internal/PathAnalyzer.h"
 #include <filesystem>
 
 namespace PenFramework::PenEngine
@@ -19,13 +17,34 @@ namespace PenFramework::PenEngine
 	class Path
 	{
 	public:
-		constexpr static Ch NativeSeparator() noexcept;
+		using value_type = Ch;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using size_type = Usize;
+		using difference_type = Isize;
+
+		// @todo 长路径支持需要内部使用平台特化的separator，并且对于size >= MAX_PATH的路径自动加上\\?\ 目前不打算实现这一部分内容
+		constexpr static Ch PreferredSeparator =
+		{
+			#ifdef LONG_PATH_SUPPORT 
+			// 如果不启用长路径支持，windows api可以识别以'/'为分隔符的路径
+			#ifdef _WIN32
+			'\\'
+			#else // _WIN32
+			'/'
+			#endif // _WIN32
+
+			#else // LONG_PATH_SUPPORT
+			'/'
+			#endif // LONG_PATH_SUPPORT 
+		};
 
 		Path() noexcept = default;
 
-		Path(const Path& path) : m_path(path.m_path) {}
-		Path(Path&& path) noexcept : m_path(std::move(path.m_path)) {}
-
+		Path(const Path&) =default;
+		Path(Path&&) noexcept = default;
 		Path& operator=(const Path& path);
 		Path& operator=(Path&& path) noexcept;
 
@@ -40,12 +59,15 @@ namespace PenFramework::PenEngine
 		Path& operator=(const std::string& path);
 		Path& operator=(std::string_view path);
 
-		Path operator/(Path& path);
-		Path operator/(const String& path);
-		Path operator/(StringView path);
-		Path operator/(const Ch* path);
-		Path operator/(const std::string& path);
-		Path operator/(std::string_view path);
+		template <typename... T>
+		static Path BuildRawPath(T... view);
+
+		Path operator/(const Path& path) const;
+		Path operator/(const String& path) const;
+		Path operator/(StringView path) const;
+		Path operator/(const Ch* path) const;
+		Path operator/(const std::string& path) const;
+		Path operator/(std::string_view path) const;
 
 		Path& operator/=(const Path& path);
 		Path& operator/=(const String& path);
@@ -59,10 +81,14 @@ namespace PenFramework::PenEngine
 
 		bool Empty() const noexcept;
 
-		Path GetRootName() const;
-		Path GetRootPath() const;
-		Path GetFilename() const;
-		Path GetExtension() const;
+		Path RootName() const;
+		Path RootPath() const;
+		Path RootDirectory() const;
+		Path Filename() const;
+		Path Extension() const;
+		Path Stem() const;
+		Path ParentPath() const;
+		Path RelativePath() const;
 
 		template <typename CharType>
 		BasicString<CharType> ToString() const;
@@ -70,23 +96,35 @@ namespace PenFramework::PenEngine
 		std::basic_string<CharType> ToStdString() const;
 		const Ch* Data() const noexcept;
 
+		StringView ToView() const;
+
+		bool HasRootName() const noexcept;
 		bool HasRootPath() const noexcept;
 		bool HasRootDirectory() const noexcept;
 		bool HasRelativePath() const noexcept;
 		bool HasParentPath() const noexcept;
 		bool HasFilename() const noexcept;
 		bool HasStem() const noexcept;
-		bool HasExtention() const noexcept;
+		bool HasExtension() const noexcept;
 	private:
-		static Path UncheckedBuildPath(StringView view);
-
 		StringView InternalGetRootName() const noexcept;
-		StringView InternalGetRootDir() const noexcept;
+		StringView InternalGetRootDirectory() const noexcept;
 		StringView InternalGetFilename() const noexcept;
+		StringView InternalGetRelativePath() const noexcept;
+		StringView InternalGetParentPath() const noexcept;
 
+		static String Normalize(StringView path);
 
 		String m_path;
 	};
+
+	template <typename ... T>
+	Path Path::BuildRawPath(T... view)
+	{
+		Path res;
+		(res.m_path += ... += view);
+		return res;
+	}
 
 	template <typename CharType>
 	BasicString<CharType> Path::ToString() const
@@ -97,18 +135,18 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	std::basic_string<CharType> Path::ToStdString() const
 	{
-		return boost::locale::conv::utf_to_utf<CharType>(m_path.Data(),m_path.Size());
-	}
-
-	constexpr Ch Path::NativeSeparator() noexcept
-	{
-		#ifdef _WIN32
-		return '\\';
-		#else
-		return '/';
-		#endif // _WIN32
+		return boost::locale::conv::utf_to_utf<CharType>(m_path.Data(), m_path.Data() + m_path.Size());
 	}
 }
+
+template <>
+struct std::hash<PenFramework::PenEngine::Path>
+{
+	static PenFramework::PenEngine::Usize operator()(const PenFramework::PenEngine::Path& path) noexcept
+	{
+		return std::hash<PenFramework::PenEngine::StringView>::operator()(path.ToView());
+	}
+};
 
 template<>
 struct std::formatter<PenFramework::PenEngine::Path> : std::formatter<std::string>

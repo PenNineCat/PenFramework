@@ -108,8 +108,6 @@ namespace PenFramework::PenEngine
 					return t.begin();
 				else if constexpr (choice.Choice == BeginChoice::STDLikeADLSearch)
 					return begin(t);
-				else
-					static_assert(false, "Unsupported target");
 			}
 		};
 	}
@@ -181,8 +179,6 @@ namespace PenFramework::PenEngine
 					return t.end();
 				else if constexpr (choice.Choice == EndChoice::STDLikeADLSearch)
 					return end(t);
-				else
-					static_assert(false, "Unsupported target");
 			}
 		};
 	}
@@ -260,8 +256,6 @@ namespace PenFramework::PenEngine
 					return size(t);
 				else if constexpr (choice.Choice == SizeChoice::Difference)
 					return static_cast<Usize>(PenEngine::Begin(t) - PenEngine::End(t));
-				else
-					static_assert(false, "Unsupported target");
 			}
 		};
 	}
@@ -313,8 +307,6 @@ namespace PenFramework::PenEngine
 					return t.data();
 				else if constexpr (choice.Choice == DataChoice::Address)
 					return std::to_address(PenEngine::Begin(t));
-				else
-					static_assert(false, "Unsupported target");
 			}
 		};
 	}

@@ -139,6 +139,8 @@
     <ClCompile Include="Code\Engine\CoreApplication\CoreApplication.cpp" />
     <ClCompile Include="Code\Engine\IO\Hardware\FileDevice.cpp" />
     <ClCompile Include="Code\Engine\IO\Internal\PathAnalyzer.cpp" />
+    <ClCompile Include="Code\Engine\IO\Internal\PathNormalizer.cpp" />
+    <ClCompile Include="Code\Engine\IO\Internal\PathUtils.cpp" />
     <ClCompile Include="Code\Engine\IO\Path.cpp" />
     <ClCompile Include="Code\Engine\IO\URI.cpp" />
     <ClCompile Include="Code\Engine\Objects\PObject.cpp" />
@@ -151,7 +153,8 @@
     <ClInclude Include="Code\Engine\Common\Iterator.hpp" />
     <ClInclude Include="Code\Engine\Common\Type.hpp" />
     <ClInclude Include="Code\Engine\CoreApplication\CoreApplication.h" />
-    <ClInclude Include="Code\Engine\Coroutine\Awaitable.hpp" />
+    <ClInclude Include="Code\Engine\Coroutine\AsyncTask.hpp" />
+    <ClInclude Include="Code\Engine\Coroutine\Awaiter.hpp" />
     <ClInclude Include="Code\Engine\DebugTools\Verify.hpp" />
     <ClInclude Include="Code\Engine\Environment\DXEnvironment.h" />
     <ClInclude Include="Code\Engine\Environment\Win32Environment.h" />
@@ -160,8 +163,9 @@
     <ClInclude Include="Code\Engine\IO\IInputStream.h" />
     <ClInclude Include="Code\Engine\IO\IIODevice.h" />
     <ClInclude Include="Code\Engine\IO\Internal\PathAnalyzer.h" />
+    <ClInclude Include="Code\Engine\IO\Internal\PathNormalizer.h" />
+    <ClInclude Include="Code\Engine\IO\Internal\PathUtils.h" />
     <ClInclude Include="Code\Engine\IO\IOutputStream.h" />
-    <ClInclude Include="Code\Engine\IO\IStreamIODevice.h" />
     <ClInclude Include="Code\Engine\IO\Path.h" />
     <ClInclude Include="Code\Engine\IO\URI.h" />
     <ClInclude Include="Code\Engine\Math\Color.hpp" />
@@ -191,6 +195,8 @@
     <ClInclude Include="Code\UnitTest\BasicOutputInterface\ConsoleInterface.h" />
     <ClInclude Include="Code\UnitTest\Tests\Test_Format.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_MathFunction.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_UnixLikePath.hpp" />
+    <ClInclude Include="Code\UnitTest\Tests\Test_WindowsPath.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_String.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_String_NotVectorizedFindXXX.hpp" />
     <ClInclude Include="Code\UnitTest\Tests\Test_Vec2.hpp" />

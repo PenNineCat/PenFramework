@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "../Utils/Iterator.hpp"
 #include "../Common/Type.hpp"
 #include "../DebugTools/Verify.hpp"
 #include "../Exception/Exception.hpp"
 #include "../Memory/Memory.hpp"
 #include "../Utils/Concept.hpp"
+#include "../Utils/Iterator.hpp"
 #include "StringView.hpp"
 #include <boost/locale/encoding_utf.hpp>
 #include <charconv>
@@ -32,7 +32,7 @@ namespace PenFramework::PenEngine
 	class BasicString
 	{
 	public:
-		static constexpr U8 LocalStorageCapacity = 22ull / sizeof(CharType);
+		static constexpr U8 LocalStorageCapacity = (24ull / sizeof(CharType)) - 1;
 		static constexpr U8 AllocateMask = sizeof(CharType) <= 1 ? 15
 			: sizeof(CharType) <= 2 ? 7
 			: sizeof(CharType) <= 4 ? 3
@@ -103,7 +103,7 @@ namespace PenFramework::PenEngine
 
 		explicit BasicString(Usize capacity);
 		BasicString(CharType ch, Usize count);
-		explicit BasicString(const CharType* str);
+		/*implicit*/ BasicString(const CharType* str);
 		BasicString(const CharType* str, Usize length);
 
 		template <typename SourceCharType>
@@ -111,14 +111,14 @@ namespace PenFramework::PenEngine
 
 		BasicString(const BasicString& other);
 		BasicString(BasicString&& other) noexcept;
+		BasicString& operator=(const BasicString& str);
+		BasicString& operator=(BasicString&& other) noexcept;
 
 		BasicString(const BasicString& other, Usize len);
-
+		BasicString(ConstIterator begin, ConstIterator end) :BasicString(begin.Data(), end - begin) {}
 		explicit BasicString(BasicStringView<CharType> str) : BasicString(str.Data(), str.Size()) {}
 
-		BasicString& operator=(const BasicString& str);
 		BasicString& operator=(BasicStringView<CharType> str);
-		BasicString& operator=(BasicString&& other) noexcept;
 		BasicString& operator=(const CharType* str);
 		BasicString& operator=(const std::basic_string<CharType>& str);
 		BasicString& operator=(std::basic_string_view<CharType> str);
@@ -127,6 +127,7 @@ namespace PenFramework::PenEngine
 		~BasicString() noexcept;
 
 		BasicString& operator+=(const BasicString& str);
+		BasicString& operator+=(BasicStringView<CharType> str);
 		BasicString& operator+=(const CharType* str);
 		BasicString& operator+=(const std::basic_string<CharType>& str);
 		BasicString& operator+=(std::basic_string_view<CharType> str);
@@ -156,6 +157,8 @@ namespace PenFramework::PenEngine
 
 		CharType* Data() noexcept;
 		const CharType* Data() const noexcept;
+		const CharType* EndData() noexcept;
+		const CharType* EndData() const noexcept;
 
 		BasicString Substr(Usize off = 0, Usize len = NPos) const;
 		BasicString Right(Usize len) const;
@@ -173,7 +176,8 @@ namespace PenFramework::PenEngine
 			return BasicStringView<CharType>(Data(), Size());
 		}
 
-		void Append(const BasicString& other);
+		void Append(const BasicString& str);
+		void Append(BasicStringView<CharType> str);
 		void Append(const CharType* str);
 		void Append(const CharType* str, Usize len);
 		void Append(CharType ch);
@@ -190,7 +194,6 @@ namespace PenFramework::PenEngine
 		void ConvertAndAppend(const BasicString<SourceCharType>& str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
 		void ConvertAndAppend(const SourceCharType* str, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
-		 // @todo 这个地方需要一次Benchmark，以判断是临时缓冲区性能更高，还是双循环性能更高
 		template <typename SourceCharType>
 		void ConvertAndAppend(const SourceCharType* str, Usize len, boost::locale::conv::method_type how = boost::locale::conv::method_type::default_method);
 		template <typename SourceCharType>
@@ -200,7 +203,8 @@ namespace PenFramework::PenEngine
 
 		bool IsValidUnicodeFormat() const noexcept;
 
-		void PushBack(const BasicString& other);
+		void PushBack(const BasicString& str);
+		void PushBack(BasicStringView<CharType> str);
 		void PushBack(const CharType* str);
 		void PushBack(const CharType* str, Usize len);
 		void PushBack(CharType ch, Usize count);
@@ -285,35 +289,40 @@ namespace PenFramework::PenEngine
 		const_reference operator[](Usize pos) const noexcept;
 
 		Usize Find(CharType ch, Usize off = 0) const noexcept;
-		Usize Find(const BasicString& other, Usize off = 0) const noexcept;
+		Usize Find(const BasicString& str, Usize off = 0) const noexcept;
+		Usize Find(BasicStringView<CharType> str, Usize off = 0) const noexcept;
 		Usize Find(const CharType* str, Usize off = 0) const noexcept;
 		Usize Find(const CharType* str, Usize off, Usize len) const noexcept;
 		Usize Find(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
 		Usize Find(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
 		Usize FindFirstOf(CharType ch, Usize off = 0) const noexcept;
-		Usize FindFirstOf(const BasicString& other, Usize off = 0) const noexcept;
+		Usize FindFirstOf(const BasicString& str, Usize off = 0) const noexcept;
+		Usize FindFirstOf(BasicStringView<CharType> str, Usize off = 0) const noexcept;
 		Usize FindFirstOf(const CharType* str, Usize off = 0) const noexcept;
 		Usize FindFirstOf(const CharType* str, Usize off, Usize len) const noexcept;
 		Usize FindFirstOf(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
 		Usize FindFirstOf(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
 		Usize FindLastOf(CharType ch, Usize off = NPos) const noexcept;
-		Usize FindLastOf(const BasicString& other, Usize off = NPos) const noexcept;
+		Usize FindLastOf(const BasicString& str, Usize off = NPos) const noexcept;
+		Usize FindLastOf(BasicStringView<CharType> str,Usize off = NPos) const noexcept;
 		Usize FindLastOf(const CharType* str, Usize off = NPos) const noexcept;
 		Usize FindLastOf(const CharType* str, Usize off, Usize len) const noexcept;
 		Usize FindLastOf(const std::basic_string<CharType>& str, Usize off = NPos) const noexcept;
 		Usize FindLastOf(std::basic_string_view<CharType> str, Usize off = NPos) const noexcept;
 
 		Usize FindFirstNotOf(CharType ch, Usize off = 0) const noexcept;
-		Usize FindFirstNotOf(const BasicString& other, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(const BasicString& str, Usize off = 0) const noexcept;
+		Usize FindFirstNotOf(BasicStringView<CharType> str, Usize off = NPos) const noexcept;
 		Usize FindFirstNotOf(const CharType* str, Usize off = 0) const noexcept;
 		Usize FindFirstNotOf(const CharType* str, Usize off, Usize len) const noexcept;
 		Usize FindFirstNotOf(const std::basic_string<CharType>& str, Usize off = 0) const noexcept;
 		Usize FindFirstNotOf(std::basic_string_view<CharType> str, Usize off = 0) const noexcept;
 
 		Usize FindLastNotOf(CharType ch, Usize off = NPos) const noexcept;
-		Usize FindLastNotOf(const BasicString& other, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(const BasicString& str, Usize off = NPos) const noexcept;
+		Usize FindLastNotOf(BasicStringView<CharType> str, Usize off = NPos) const noexcept;
 		Usize FindLastNotOf(const CharType* str, Usize off = NPos) const noexcept;
 		Usize FindLastNotOf(const CharType* str, Usize off, Usize len) const noexcept;
 		Usize FindLastNotOf(const std::basic_string<CharType>& str, Usize off = NPos) const noexcept;
@@ -443,7 +452,9 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator=(const BasicString& str)
 	{
-		CleanAndReBuild(str.Data(), str.Size());
+		if(&str != this)
+			CleanAndReBuild(str.Data(), str.Size());
+
 		return *this;
 	}
 
@@ -457,8 +468,13 @@ namespace PenFramework::PenEngine
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator=(BasicString&& other) noexcept
 	{
+		if(&other == this)
+			return *this;
+
 		DeallocateBuffer();
 		std::swap(m_buffer, other.m_buffer);
+		std::swap(m_size,other.m_size);
+		std::swap(m_capacity,other.m_capacity);
 		return *this;
 	}
 
@@ -501,6 +517,13 @@ namespace PenFramework::PenEngine
 
 	template <typename CharType>
 	BasicString<CharType>& BasicString<CharType>::operator+=(const BasicString& str)
+	{
+		Append(str);
+		return *this;
+	}
+
+	template <typename CharType>
+	BasicString<CharType>& BasicString<CharType>::operator+=(BasicStringView<CharType> str)
 	{
 		Append(str);
 		return *this;
@@ -686,16 +709,26 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
+	const CharType* BasicString<CharType>::EndData() noexcept
+	{
+		return Data() + Size();
+	}
+
+	template <typename CharType>
+	const CharType* BasicString<CharType>::EndData() const noexcept
+	{
+		return Data() + Size();
+	}
+
+	template <typename CharType>
 	BasicString<CharType> BasicString<CharType>::Substr(Usize off, Usize len) const
 	{
 		Usize size = Size();
 
-		if (off >= size)
-			return {};
-
+		off = std::min(off,size);
 		len = std::min(len, size - off);
 
-		return BasicString(Buffer() + off, len);
+		return BasicString(Data() + off, len);
 	}
 
 	template <typename CharType>
@@ -743,9 +776,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::Append(const BasicString& other)
+	void BasicString<CharType>::Append(const BasicString& str)
 	{
-		Append(other.Buffer(), other.Size());
+		Append(str.Data(), str.Size());
+	}
+
+	template <typename CharType>
+	void BasicString<CharType>::Append(BasicStringView<CharType> str)
+	{
+		Append(str.Data(),str.Size());
 	}
 
 	template <typename CharType>
@@ -900,7 +939,7 @@ namespace PenFramework::PenEngine
 			const boost::locale::utf::code_point c = boost::locale::utf::utf_traits<SourceCharType>::decode(begin, end);
 			if (c == boost::locale::utf::illegal || c == boost::locale::utf::incomplete) {
 				if (how == boost::locale::conv::method_type::stop)
-					throw boost::locale::conv::conversion_error();
+					throw UtfConversionException("BasicString");
 			}
 			else
 			{
@@ -942,9 +981,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	void BasicString<CharType>::PushBack(const BasicString& other)
+	void BasicString<CharType>::PushBack(const BasicString& str)
 	{
-		Append(other);
+		Append(str);
+	}
+
+	template <typename CharType>
+	void BasicString<CharType>::PushBack(BasicStringView<CharType> str)
+	{
+		Append(str);
 	}
 
 	template <typename CharType>
@@ -1388,9 +1433,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	Usize BasicString<CharType>::Find(const BasicString& other, Usize off) const noexcept
+	Usize BasicString<CharType>::Find(const BasicString& str, Usize off) const noexcept
 	{
-		return Find(other.Data(), off, other.Size());
+		return Find(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	Usize BasicString<CharType>::Find(BasicStringView<CharType> str, Usize off) const noexcept
+	{
+		return Find(str.Data(), off, str.Size());
 	}
 
 	template <typename CharType>
@@ -1424,9 +1475,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	Usize BasicString<CharType>::FindFirstOf(const BasicString& other, Usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstOf(const BasicString& str, Usize off) const noexcept
 	{
-		return FindFirstOf(other.Data(), off, other.Size());
+		return FindFirstOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	Usize BasicString<CharType>::FindFirstOf(BasicStringView<CharType> str, Usize off) const noexcept
+	{
+		return FindFirstOf(str.Data(), off, str.Size());
 	}
 
 	template <typename CharType>
@@ -1460,9 +1517,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	Usize BasicString<CharType>::FindLastOf(const BasicString& other, Usize off) const noexcept
+	Usize BasicString<CharType>::FindLastOf(const BasicString& str, Usize off) const noexcept
 	{
-		return FindLastOf(other.Data(), off, other.Size());
+		return FindLastOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	Usize BasicString<CharType>::FindLastOf(BasicStringView<CharType> str, Usize off) const noexcept
+	{
+		return FindLastOf(str.Data(),off,str.Size());
 	}
 
 	template <typename CharType>
@@ -1496,9 +1559,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	Usize BasicString<CharType>::FindFirstNotOf(const BasicString& other, Usize off) const noexcept
+	Usize BasicString<CharType>::FindFirstNotOf(const BasicString& str, Usize off) const noexcept
 	{
-		return FindFirstNotOf(other.Data(), off, other.Size());
+		return FindFirstNotOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	Usize BasicString<CharType>::FindFirstNotOf(BasicStringView<CharType> str, Usize off) const noexcept
+	{
+		return FindFirstNotOf(str.Data(), off, str.Size());
 	}
 
 	template <typename CharType>
@@ -1532,9 +1601,15 @@ namespace PenFramework::PenEngine
 	}
 
 	template <typename CharType>
-	Usize BasicString<CharType>::FindLastNotOf(const BasicString& other, Usize off) const noexcept
+	Usize BasicString<CharType>::FindLastNotOf(const BasicString& str, Usize off) const noexcept
 	{
-		return FindLastNotOf(other.Data(), off, other.Size());
+		return FindLastNotOf(str.Data(), off, str.Size());
+	}
+
+	template <typename CharType>
+	Usize BasicString<CharType>::FindLastNotOf(BasicStringView<CharType> str, Usize off) const noexcept
+	{
+		return FindLastNotOf(str.Data(), off, str.Size());
 	}
 
 	template <typename CharType>

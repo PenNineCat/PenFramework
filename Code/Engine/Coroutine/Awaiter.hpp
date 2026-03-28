@@ -1,4 +1,4 @@
-// File /Engine/Coroutine/Awaitable.hpp
+// File /Engine/Coroutine/Awaiter.hpp
 // This file is a part of PenFramework Project
 // https://github.com/PenNineCat/PenFramework
 // 
@@ -12,10 +12,8 @@
 
 namespace PenFramework::PenEngine
 {
-	template <typename Ret>
-	class Awaitable
+	class Awaiter
 	{
-	public:
-	private:
+
 	};
 }
